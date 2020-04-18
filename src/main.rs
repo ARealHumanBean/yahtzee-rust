@@ -10,6 +10,7 @@ struct Player {
     name: String,
     score: i32
 }
+
 impl Player {
     fn new(name: String) -> Player{
         Player{name: name, score: 0}
@@ -46,5 +47,7 @@ fn get_players_count() -> u32 {
 
 fn main() {
     introduction();
-    println!("{}", get_players_count());
+    let players = get_players_count();
+
+    println!("There are {}", players);
 }

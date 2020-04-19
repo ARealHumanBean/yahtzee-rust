@@ -55,7 +55,12 @@ impl Dice {
 
 impl fmt::Display for Dice {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.dice[0])
+        write!(f, "Dice: [{}]", self.dice.iter()
+            .enumerate()
+            .map(|(i, die)| format!("D{}:{}", i + 1, die))
+            .collect::<Vec<String>>()
+            .join(" ")
+        )
     }
 }
 // Game data?
@@ -99,7 +104,7 @@ fn main() {
 
     let mut yahtzee_dice = Dice::new();
 
-    println!("{:?}", yahtzee_dice);
+    println!("{:}", yahtzee_dice);
     yahtzee_dice.roll(3);
-    println!("{:?}", yahtzee_dice);
+    println!("{:}", yahtzee_dice);
 }

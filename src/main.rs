@@ -1,41 +1,55 @@
-use std::{io, fmt};
-extern crate rand;
 use rand::distributions::{Distribution, Uniform};
+use rand::Rng;
+use std::{fmt, io};
+
 /* Yahtzee flow
 number of dice = 5
 number of rerolls = 3
 number of rounds = 13
-
 */
 
+// will you contain player data? yes?
 struct Player {
     name: String,
-    score: i32
+    score: i32,
 }
 
 impl Player {
     fn new(name: String) -> Player {
-        Player {name: name, score: 0}
+        Player {
+            name: name,
+            score: 0,
+        }
     }
 }
 
 #[derive(Debug)]
 struct Dice {
-    dice: [u8; 5]
+    dice: [u8; 5],
 }
 
 impl Dice {
-    fn new(&mut self) -> Dice {
-        Dice {dice: [0;5]}
-    }
-
-    fn roll(&mut self) {
+    // create new dice every round
+    fn new() -> Dice {
+        let mut new_dice = Dice { dice: [0; 5] };
         let mut rng = rand::thread_rng();
         let die_range = Uniform::from(1..7);
 
-        for die in self.dice.iter_mut() {
+        for die in new_dice.dice.iter_mut() {
             *die = die_range.sample(&mut rng) as u8;
         }
+
+        new_dice
+    }
+
+    fn roll(&mut self, die: usize) {
+        if die > self.dice.len() - 1 {
+            println!("out of bounds");
+            return;
+        }
+
+        let mut rng = rand::thread_rng();
+        self.dice[die] = rng.gen_range(0, 6);
     }
 }
 
@@ -44,12 +58,11 @@ impl fmt::Display for Dice {
         write!(f, "{}", self.dice[0])
     }
 }
-
+// Game data?
 struct Yahtzee {
-    dice: u32,
     rerolls: u32,
     rounds: u32,
-    players: Vec<Player>
+    players: Vec<Player>,
 }
 
 fn introduction() {
@@ -57,11 +70,12 @@ fn introduction() {
 }
 
 fn get_players_count() -> u32 {
+    let mut players = String::new();
     loop {
         println!("How many people are playing?");
-        let mut players = String::new();
 
-        io::stdin().read_line(&mut players)
+        io::stdin()
+            .read_line(&mut players)
             .expect("Failed to read line");
 
         let players: u32 = match players.trim().parse() {
@@ -69,7 +83,7 @@ fn get_players_count() -> u32 {
             Err(_) => continue,
         };
 
-        return players
+        return players;
     }
 }
 
@@ -83,8 +97,9 @@ fn main() {
         println!("{} Player game", players);
     }
 
-    let mut yahtzee_dice: Dice = Dice {dice: [0;5]};
+    let mut yahtzee_dice = Dice::new();
+
     println!("{:?}", yahtzee_dice);
-    yahtzee_dice.roll();
+    yahtzee_dice.roll(3);
     println!("{:?}", yahtzee_dice);
 }

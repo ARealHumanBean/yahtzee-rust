@@ -9,6 +9,7 @@ number of rounds = 13
 */
 
 // will you contain player data? yes?
+#[derive(Debug)]
 struct Player {
     name: String,
     score: i32,
@@ -23,7 +24,6 @@ impl Player {
     }
 }
 
-#[derive(Debug)]
 struct Dice {
     dice: [u8; 5],
 }
@@ -55,14 +55,19 @@ impl Dice {
 
 impl fmt::Display for Dice {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Dice: [{}]", self.dice.iter()
-            .enumerate()
-            .map(|(i, die)| format!("D{}:{}", i + 1, die))
-            .collect::<Vec<String>>()
-            .join(" ")
+        write!(
+            f,
+            "Dice: [{}]",
+            self.dice
+                .iter()
+                .enumerate()
+                .map(|(i, die)| format!("D{}:{}", i + 1, die))
+                .collect::<Vec<String>>()
+                .join(" ")
         )
     }
 }
+
 // Game data?
 struct Yahtzee {
     rerolls: u32,
@@ -92,18 +97,34 @@ fn get_players_count() -> u32 {
     }
 }
 
+fn get_player_name() -> String {
+    let mut player_name = String::new();
+    loop {
+        println!("What is your name?");
+
+        io::stdin()
+            .read_line(&mut player_name)
+            .expect("Failed to read line");
+
+        return player_name.trim().to_owned();
+    }
+}
+
 fn main() {
     introduction();
-    let players = get_players_count();
+    let player_count = get_players_count();
 
-    if players == 1 {
+    let mut players: Vec<Player> = Vec::new();
+
+    if player_count == 1 {
         println!("Single Player game");
+        players.push(Player::new(get_player_name()));
     } else {
-        println!("{} Player game", players);
+        println!("{} Player game", player_count);
     }
 
+    println!("{:?}", players);
     let mut yahtzee_dice = Dice::new();
-
     println!("{:}", yahtzee_dice);
     yahtzee_dice.roll(3);
     println!("{:}", yahtzee_dice);

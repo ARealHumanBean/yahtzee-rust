@@ -8,6 +8,42 @@ number of rerolls = 3
 number of rounds = 13
 */
 
+enum Score {
+    Aces(u8),
+    Twos(u8),
+    Threes(u8),
+    Fours(u8),
+    Fives(u8),
+    Sixes(u8),
+    ThreeOfAKind(u8),
+    FourOfAKind(u8),
+    FullHouse,
+    SmallStraight,
+    LargeStraight,
+    Chance(Dice),
+    Yahtzee,
+}
+
+impl fmt::Display for Score {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Score::Aces(dice) => write!(f, "{}", dice),
+            Score::Twos(dice) => write!(f, "{}", dice * 2),
+            Score::Threes(dice) => write!(f, "{}", dice * 3),
+            Score::Fours(dice) => write!(f, "{}", dice * 4),
+            Score::Fives(dice) => write!(f, "{}", dice * 5),
+            Score::Sixes(dice) => write!(f, "{}", dice * 6),
+            Score::ThreeOfAKind(die) => write!(f, "{}", die * 3),
+            Score::FourOfAKind(die) => write!(f, "{}", die * 4),
+            Score::FullHouse => write!(f, "25"),
+            Score::SmallStraight => write!(f, "30"),
+            Score::LargeStraight => write!(f, "40"),
+            Score::Chance(all_dice) => write!(f, "{}", all_dice.dice.iter().sum::<u8>()),
+            Score::Yahtzee => write!(f, "50"),
+        }
+    }
+}
+
 // will you contain player data? yes?
 #[derive(Debug)]
 struct Player {
@@ -128,4 +164,7 @@ fn main() {
     println!("{:}", yahtzee_dice);
     yahtzee_dice.roll(3);
     println!("{:}", yahtzee_dice);
+
+    let score = Score::Aces(2);
+    println!("{}", score);
 }

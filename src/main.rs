@@ -1,13 +1,18 @@
 use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
-use std::{fmt, io};
+use std::{fmt, io, str};
 
 /* Yahtzee flow
 number of dice = 5
 number of rerolls = 3
 number of rounds = 13
 */
-
+/// Holds the different Score types a Yahtzee game can have
+///
+/// ```
+/// let aces = Score::Aces = 2;
+/// assert_eq!(aces, 2);
+/// ```
 enum Score {
     Aces(u8),
     Twos(u8),
@@ -25,6 +30,14 @@ enum Score {
 }
 
 impl fmt::Display for Score {
+    /// Display for different scores
+    ///
+    /// The score values are calculated in the Display. It might be a better idea to not do that.
+    ///
+    /// ```
+    /// let twos = Score::Twos(2);
+    /// assert_eq!(format!("{}", twos),"4");
+    /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Score::Aces(dice) => write!(f, "{}", dice),
@@ -48,7 +61,7 @@ impl fmt::Display for Score {
 #[derive(Debug)]
 struct Player {
     name: String,
-    score: i32,
+    score: u32,
 }
 
 impl Player {
@@ -133,6 +146,48 @@ fn get_players_count() -> u32 {
     }
 }
 
+/// read values split by a comma
+fn read_values<T: str::FromStr>() -> Result<Vec<T>, T::Err> {
+    let mut input = String::new();
+    println!("Enter the number of each dice you want to reroll seperated by commas(,)");
+
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read line");
+
+    input.trim().split(",").map(|word| word.parse()).collect()
+}
+
+/// rerolls dice the user chooses to reroll
+fn reroll(dice: &mut Dice) -> &mut Dice {
+    let rerolls = read_values::<u8>().unwrap();
+
+    for die in rerolls {
+        dice.roll(die as usize - 1);
+    }
+
+    dice
+}
+
+fn round() -> u32 {
+    let mut dice = Dice::new();
+    let mut rolls = 1;
+    let score = 0;
+
+    while rolls < 4 {
+        println!("{}", dice);
+        println!("Scores: ");
+        println!("put a function here to check scores based on dice");
+        if rolls < 3 {
+            reroll(&mut dice);
+        }
+        rolls = rolls + 1;
+    }
+
+    score
+}
+
+/// Gets the players name from standard input
 fn get_player_name() -> String {
     let mut player_name = String::new();
     loop {
@@ -160,11 +215,6 @@ fn main() {
     }
 
     println!("{:?}", players);
-    let mut yahtzee_dice = Dice::new();
-    println!("{:}", yahtzee_dice);
-    yahtzee_dice.roll(3);
-    println!("{:}", yahtzee_dice);
 
-    let score = Score::Aces(2);
-    println!("{}", score);
+    round();
 }

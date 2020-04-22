@@ -2,11 +2,6 @@ use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 use std::{fmt, io, str};
 
-/* Yahtzee flow
-number of dice = 5
-number of rerolls = 3
-number of rounds = 13
-*/
 /// Holds the different Score types a Yahtzee game can have
 ///
 /// ```
@@ -124,32 +119,19 @@ struct Yahtzee {
     players: Vec<Player>,
 }
 
-fn introduction() {
-    println!("Hello and welcome to YAHTZEE!!!")
-}
+fn read_value<T: str::FromStr>() -> Result<T, T::Err> {
+    let mut input = String::new();
 
-fn get_players_count() -> u32 {
-    let mut players = String::new();
-    loop {
-        println!("How many people are playing?");
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read line");
 
-        io::stdin()
-            .read_line(&mut players)
-            .expect("Failed to read line");
-
-        let players: u32 = match players.trim().parse() {
-            Ok(num) => num,
-            Err(_) => continue,
-        };
-
-        return players;
-    }
+    input.trim().parse()
 }
 
 /// read values split by a comma
 fn read_values<T: str::FromStr>() -> Result<Vec<T>, T::Err> {
     let mut input = String::new();
-    println!("Enter the number of each dice you want to reroll seperated by commas(,)");
 
     io::stdin()
         .read_line(&mut input)
@@ -158,8 +140,14 @@ fn read_values<T: str::FromStr>() -> Result<Vec<T>, T::Err> {
     input.trim().split(",").map(|word| word.parse()).collect()
 }
 
+
+fn introduction() {
+    println!("Hello and welcome to YAHTZEE!!!")
+}
+
 /// rerolls dice the user chooses to reroll
 fn reroll(dice: &mut Dice) -> &mut Dice {
+    println!("Enter the dice number of each dice you want to reroll seperated by commas(,)");
     let rerolls = read_values::<u8>().unwrap();
 
     for die in rerolls {
@@ -175,7 +163,7 @@ fn round() -> u32 {
     let score = 0;
 
     while rolls < 4 {
-        println!("{}", dice);
+        println!("\n{}", dice);
         println!("Scores: ");
         println!("put a function here to check scores based on dice");
         if rolls < 3 {
@@ -203,10 +191,17 @@ fn get_player_name() -> String {
 
 fn main() {
     introduction();
-    let player_count = get_players_count();
+    
+    let player_count: u8 = loop {
+        println!("How many players?");
+        match read_value() {
+            Ok(num) => break num,
+            Err(_) => continue,
+        };
+    };
+    
 
     let mut players: Vec<Player> = Vec::new();
-
     if player_count == 1 {
         println!("Single Player game");
         players.push(Player::new(get_player_name()));

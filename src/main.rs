@@ -73,7 +73,11 @@ struct Dice {
 }
 
 impl Dice {
-    // create new dice every round
+    /// create new dice every round
+    /// ```
+    /// use Dice::new();
+    /// assert_eq!(1, 1);
+    /// ```
     fn new() -> Dice {
         let mut new_dice = Dice { dice: [0; 5] };
         let mut rng = rand::thread_rng();
@@ -112,13 +116,6 @@ impl fmt::Display for Dice {
     }
 }
 
-// Game data?
-struct Yahtzee {
-    rerolls: u32,
-    rounds: u32,
-    players: Vec<Player>,
-}
-
 fn read_value<T: str::FromStr>() -> Result<T, T::Err> {
     let mut input = String::new();
 
@@ -147,7 +144,9 @@ fn introduction() {
 
 /// rerolls dice the user chooses to reroll
 fn reroll(dice: &mut Dice) -> &mut Dice {
+    
     println!("Enter the dice number of each dice you want to reroll seperated by commas(,)");
+
     let rerolls = read_values::<u8>().unwrap();
 
     for die in rerolls {
@@ -162,11 +161,26 @@ fn round() -> u32 {
     let mut rolls = 1;
     let score = 0;
 
-    while rolls < 4 {
+    'rolls: while rolls < 4 {
         println!("\n{}", dice);
         println!("Scores: ");
         println!("put a function here to check scores based on dice");
         if rolls < 3 {
+            let if_roll: bool = loop {
+                println!("Do you want to reroll? true/false");
+                match read_value() {
+                    Ok(y_or_n) => break y_or_n,
+                    Err(err) => {
+                        println!("{}", err);
+                        continue;
+                    },
+                }
+            };
+            
+            if !if_roll {
+                break 'rolls;
+            }
+
             reroll(&mut dice);
         }
         rolls = rolls + 1;
@@ -192,15 +206,17 @@ fn get_player_name() -> String {
 fn main() {
     introduction();
     
-    let player_count: u8 = loop {
+    let player_count: u32 = loop {
         println!("How many players?");
         match read_value() {
             Ok(num) => break num,
-            Err(_) => continue,
+            Err(err) => {
+                println!("{}", err);
+                continue;
+            },
         };
     };
     
-
     let mut players: Vec<Player> = Vec::new();
     if player_count == 1 {
         println!("Single Player game");

@@ -144,15 +144,13 @@ fn introduction() {
 
 /// rerolls dice the user chooses to reroll
 fn reroll(dice: &mut Dice) -> &mut Dice {
-    
     println!("Enter the dice number of each dice you want to reroll seperated by commas(,)");
-
-    let rerolls = read_values::<u8>().unwrap();
+    let rerolls: Vec<u8> = read_values().unwrap();
 
     for die in rerolls {
         dice.roll(die as usize - 1);
     }
-
+    
     dice
 }
 
@@ -161,15 +159,15 @@ fn round() -> u32 {
     let mut rolls = 1;
     let score = 0;
 
-    'rolls: while rolls < 4 {
+    'rounds: while rolls < 4 {
         println!("\n{}", dice);
         println!("Scores: ");
         println!("put a function here to check scores based on dice");
         if rolls < 3 {
-            let if_roll: bool = loop {
+            let is_reroll: bool = loop {
                 println!("Do you want to reroll? true/false");
                 match read_value() {
-                    Ok(y_or_n) => break y_or_n,
+                    Ok(is_reroll) => break is_reroll,
                     Err(err) => {
                         println!("{}", err);
                         continue;
@@ -177,15 +175,14 @@ fn round() -> u32 {
                 }
             };
             
-            if !if_roll {
-                break 'rolls;
+            if !is_reroll {
+                break 'rounds;
             }
 
             reroll(&mut dice);
         }
         rolls = rolls + 1;
     }
-
     score
 }
 

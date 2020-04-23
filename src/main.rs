@@ -27,10 +27,8 @@ enum Score {
 impl fmt::Display for Score {
     /// Display for different scores
     ///
-    /// The score values are calculated in the Display. It might be a better idea to not do that.
-    ///
     /// ```
-    /// let twos = Score::Twos(2);
+    /// let twos = Score::Twos(4);
     /// assert_eq!(format!("{}", twos),"4");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -52,7 +50,6 @@ impl fmt::Display for Score {
     }
 }
 
-// will you contain player data? yes?
 #[derive(Debug)]
 struct Player {
     name: String,
@@ -243,8 +240,6 @@ fn possible_scores(dice: Dice) -> Vec<Score> {
         // TODO: if it's the second yahtzee in a round, then double points
         scores.push(Score::Yahtzee(50));
     }
-
-
 
     scores
 }

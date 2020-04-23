@@ -148,7 +148,7 @@ impl Dice {
         true
     }
 
-    fn is_small_stright(self) -> bool {
+    fn is_small_straight(self) -> bool {
         let mut dice = self.dice;
         dice.sort();
         for i in 0..dice.len() - 2 {
@@ -231,7 +231,7 @@ fn possible_scores(dice: Dice) -> Vec<Score> {
         }
     }
 
-    if dice.is_small_stright() {
+    if dice.is_small_straight() {
         scores.push(Score::SmallStraight(30));
     }
 

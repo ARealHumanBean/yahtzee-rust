@@ -17,11 +17,11 @@ enum Score {
     Sixes(u8),
     ThreeOfAKind(u8),
     FourOfAKind(u8),
-    FullHouse,
-    SmallStraight,
-    LargeStraight,
-    Chance(Dice),
-    Yahtzee,
+    FullHouse(u8),
+    SmallStraight(u8),
+    LargeStraight(u8),
+    Chance(u8),
+    Yahtzee(u8),
 }
 
 impl fmt::Display for Score {
@@ -35,19 +35,19 @@ impl fmt::Display for Score {
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Score::Aces(dice) => write!(f, "{}", dice),
-            Score::Twos(dice) => write!(f, "{}", dice * 2),
-            Score::Threes(dice) => write!(f, "{}", dice * 3),
-            Score::Fours(dice) => write!(f, "{}", dice * 4),
-            Score::Fives(dice) => write!(f, "{}", dice * 5),
-            Score::Sixes(dice) => write!(f, "{}", dice * 6),
-            Score::ThreeOfAKind(die) => write!(f, "{}", die * 3),
-            Score::FourOfAKind(die) => write!(f, "{}", die * 4),
-            Score::FullHouse => write!(f, "25"),
-            Score::SmallStraight => write!(f, "30"),
-            Score::LargeStraight => write!(f, "40"),
-            Score::Chance(all_dice) => write!(f, "{}", all_dice.dice.iter().sum::<u8>()),
-            Score::Yahtzee => write!(f, "50"),
+            Score::Aces(score) => write!(f, "{}", score),
+            Score::Twos(score) => write!(f, "{}", score),
+            Score::Threes(score) => write!(f, "{}", score),
+            Score::Fours(score) => write!(f, "{}", score),
+            Score::Fives(score) => write!(f, "{}", score),
+            Score::Sixes(score) => write!(f, "{}", score),
+            Score::ThreeOfAKind(score) => write!(f, "{}", score),
+            Score::FourOfAKind(score) => write!(f, "{}", score),
+            Score::FullHouse(score) => write!(f, "{}", score),
+            Score::SmallStraight(score) => write!(f, "{}", score),
+            Score::LargeStraight(score) => write!(f, "{}", score),
+            Score::Chance(score) => write!(f, "{}", score),
+            Score::Yahtzee(score) => write!(f, "Yahtzee: {}", score ),
         }
     }
 }
@@ -67,7 +67,7 @@ impl Player {
         }
     }
 }
-
+#[derive(Copy, Clone)]
 struct Dice {
     dice: [u8; 5],
 }
@@ -98,6 +98,70 @@ impl Dice {
 
         let mut rng = rand::thread_rng();
         self.dice[die] = rng.gen_range(0, 6);
+    }
+
+    fn is_yahtzee(self) -> bool {
+        for i in 1..self.dice.len() {
+            if self.dice[0] != self.dice[i] {
+                return false;
+            }
+        }
+        true
+    }
+
+    fn is_upper_score(self, die_face: u8) -> bool {
+        for die in self.dice.iter() {
+            if *die == die_face {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn upper_score(self, die_face: u8) -> Result<Score, &'static str> {
+        let mut count = 0;
+        for die in self.dice.iter() {
+            if *die == die_face {
+                count = count + 1;
+            }
+        }
+
+        match die_face {
+            1 => Ok(Score::Aces(count)),
+            2 => Ok(Score::Twos(count * die_face)),
+            3 => Ok(Score::Threes(count * die_face)),
+            4 => Ok(Score::Fours(count * die_face)),
+            5 => Ok(Score::Fives(count * die_face)),
+            6 => Ok(Score::Sixes(count * die_face)),
+            _ => Err("No matches for die value"),
+        }
+    }
+
+    fn is_large_straight(self) -> bool {
+        let mut dice = self.dice;
+        dice.sort();
+        for i in 0..dice.len() - 1 {
+            if self.dice[i] != self.dice[i+1] + 1 {
+                return false
+            }
+        }
+        true
+    }
+
+    fn is_small_stright(self) -> bool {
+        let mut dice = self.dice;
+        dice.sort();
+        for i in 0..dice.len() - 2 {
+            if self.dice[i] != self.dice[i+1] + 1 {
+                return false
+            }
+        }
+        for i in 1..dice.len() - 1 {
+            if self.dice[i] != self.dice[i+1] + 1 {
+                return false
+            }
+        }
+        true
     }
 }
 
@@ -154,6 +218,37 @@ fn reroll(dice: &mut Dice) -> &mut Dice {
     dice
 }
 
+fn possible_scores(dice: Dice) -> Vec<Score> {
+    let mut scores: Vec<Score> = vec![];
+
+    for die_face in 1..=6 {
+        if dice.is_upper_score(die_face) {
+            match dice.upper_score(die_face) {
+                Ok(score) => scores.push(score),
+                Err(err) => println!("{}", err),
+            }
+            ;
+        }
+    }
+
+    if dice.is_small_stright() {
+        scores.push(Score::SmallStraight(30));
+    }
+
+    if dice.is_large_straight() {
+        scores.push(Score::LargeStraight(40));
+    }
+
+    if dice.is_yahtzee() {
+        // TODO: if it's the second yahtzee in a round, then double points
+        scores.push(Score::Yahtzee(50));
+    }
+
+
+
+    scores
+}
+
 fn round() -> u32 {
     let mut dice = Dice::new();
     let mut rolls = 1;
@@ -161,7 +256,11 @@ fn round() -> u32 {
 
     'rounds: while rolls < 4 {
         println!("\n{}", dice);
+        let scores = possible_scores(dice);
         println!("Scores: ");
+        for score in scores {
+            println!("{}", score)
+        }
         println!("put a function here to check scores based on dice");
         if rolls < 3 {
             let is_reroll: bool = loop {

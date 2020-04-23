@@ -2,6 +2,8 @@ use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 use std::{fmt, io, str};
 
+
+const NUM_ROUNDS: u8 = 13;
 /// Holds the different Score types a Yahtzee game can have
 ///
 /// ```
@@ -33,12 +35,12 @@ impl fmt::Display for Score {
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Score::Aces(score) => write!(f, "Aces: {}", score),
-            Score::Twos(score) => write!(f, "Twos: {}", score),
+            Score::Aces(score) => write!(f, "Aces: \t{}", score),
+            Score::Twos(score) => write!(f, "Twos: \t{}", score),
             Score::Threes(score) => write!(f, "Threes: {}", score),
-            Score::Fours(score) => write!(f, "Fours: {}", score),
-            Score::Fives(score) => write!(f, "Fives: {}", score),
-            Score::Sixes(score) => write!(f, "Sixes: {}", score),
+            Score::Fours(score) => write!(f, "Fours: \t{}", score),
+            Score::Fives(score) => write!(f, "Fives: \t{}", score),
+            Score::Sixes(score) => write!(f, "Sixes: \t{}", score),
             Score::ThreeOfAKind(score) => write!(f, "Three of a Kind: {}", score),
             Score::FourOfAKind(score) => write!(f, "Four of a Kind: {}", score),
             Score::FullHouse(score) => write!(f, "Full House: {}", score),
@@ -106,55 +108,52 @@ impl Dice {
         true
     }
 
-    fn is_upper_score(self, die_face: u8) -> bool {
-        for die in self.dice.iter() {
-            if *die == die_face {
-                return true;
-            }
-        }
-        false
-    }
-
-    fn upper_score(self, die_face: u8) -> Result<Score, &'static str> {
+    fn upper_score(self, die_face: u8) -> Result<Score, String> {
         let mut count = 0;
         for die in self.dice.iter() {
             if *die == die_face {
                 count = count + 1;
             }
         }
+        if count == 0 {
+            return Err(format!("count is 0 for die value of {}", die_face));
+        }
 
-        match die_face {
+        return match die_face {
             1 => Ok(Score::Aces(count)),
             2 => Ok(Score::Twos(count * die_face)),
             3 => Ok(Score::Threes(count * die_face)),
             4 => Ok(Score::Fours(count * die_face)),
             5 => Ok(Score::Fives(count * die_face)),
             6 => Ok(Score::Sixes(count * die_face)),
-            _ => Err("No matches for die value"),
+            _ => Err(format!("die_face value {} too large. Needs to be 1-6", die_face)),
         }
+        
     }
 
     fn is_large_straight(self) -> bool {
         let mut dice = self.dice;
         dice.sort();
         for i in 0..dice.len() - 1 {
-            if self.dice[i] != self.dice[i + 1] + 1 {
+            if self.dice[i] + 1 != self.dice[i + 1] {
                 return false;
             }
         }
         true
     }
 
+    /// does not work. Should use slices instead to make this work. 
     fn is_small_straight(self) -> bool {
         let mut dice = self.dice;
         dice.sort();
+        // if self.dice[..4]
         for i in 0..dice.len() - 2 {
-            if self.dice[i] != self.dice[i + 1] + 1 {
+            if self.dice[i] + 1 != self.dice[i + 1] {
                 return false;
             }
         }
         for i in 1..dice.len() - 1 {
-            if self.dice[i] != self.dice[i + 1] + 1 {
+            if self.dice[i] + 1 != self.dice[i + 1] {
                 return false;
             }
         }
@@ -218,12 +217,10 @@ fn possible_scores(dice: Dice) -> Vec<Score> {
     let mut scores: Vec<Score> = vec![];
 
     for die_face in 1..=6 {
-        if dice.is_upper_score(die_face) {
-            match dice.upper_score(die_face) {
-                Ok(score) => scores.push(score),
-                Err(err) => println!("{}", err),
-            };
-        }
+        match dice.upper_score(die_face) {
+            Ok(score) => scores.push(score),
+            Err(_) => (),
+        };
     }
 
     if dice.is_small_straight() {
@@ -235,7 +232,6 @@ fn possible_scores(dice: Dice) -> Vec<Score> {
     }
 
     if dice.is_yahtzee() {
-        // TODO: if it's the second yahtzee in a round, then double points
         scores.push(Score::Yahtzee(50));
     }
 
@@ -248,16 +244,15 @@ fn round() -> u32 {
     let score = 0;
 
     'rounds: while rolls < 4 {
-        println!("\nRoll {}: {}", rolls, dice);
-
         let scores = possible_scores(dice);
         println!("\nScores: ");
         for score in scores {
-            println!("{}", score)
+            println!("\t{} points", score)
         }
 
         if rolls < 3 {
             let is_reroll: bool = loop {
+                println!("\nRoll {}: {}", rolls, dice);
                 println!("\nDo you want to reroll? true/false");
                 match read_value() {
                     Ok(is_reroll) => break is_reroll,
@@ -276,6 +271,8 @@ fn round() -> u32 {
         }
         rolls = rolls + 1;
     }
+
+    println!("function to score here");
     score
 }
 
@@ -315,10 +312,12 @@ fn main() {
         println!("{} Player game", player_count);
     }
 
-    println!("{:?}", players);
+    for round_incr in 1..=NUM_ROUNDS {
+        for player in players.iter() {
+            println!("\n{}'s Round {}", player.name, round_incr);
+            println!("Current Score: {}", player.score);
+            round();
+        }
 
-    for round_incr in 1..=13 {
-        println!("\nRound {}", round_incr);
-        round();
     }
 }

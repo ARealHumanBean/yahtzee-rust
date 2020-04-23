@@ -33,19 +33,19 @@ impl fmt::Display for Score {
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Score::Aces(score) => write!(f, "{}", score),
-            Score::Twos(score) => write!(f, "{}", score),
-            Score::Threes(score) => write!(f, "{}", score),
-            Score::Fours(score) => write!(f, "{}", score),
-            Score::Fives(score) => write!(f, "{}", score),
-            Score::Sixes(score) => write!(f, "{}", score),
-            Score::ThreeOfAKind(score) => write!(f, "{}", score),
-            Score::FourOfAKind(score) => write!(f, "{}", score),
-            Score::FullHouse(score) => write!(f, "{}", score),
-            Score::SmallStraight(score) => write!(f, "{}", score),
-            Score::LargeStraight(score) => write!(f, "{}", score),
-            Score::Chance(score) => write!(f, "{}", score),
-            Score::Yahtzee(score) => write!(f, "Yahtzee: {}", score ),
+            Score::Aces(score) => write!(f, "Aces: {}", score),
+            Score::Twos(score) => write!(f, "Twos: {}", score),
+            Score::Threes(score) => write!(f, "Threes: {}", score),
+            Score::Fours(score) => write!(f, "Fours: {}", score),
+            Score::Fives(score) => write!(f, "Fives: {}", score),
+            Score::Sixes(score) => write!(f, "Sixes: {}", score),
+            Score::ThreeOfAKind(score) => write!(f, "Three of a Kind: {}", score),
+            Score::FourOfAKind(score) => write!(f, "Four of a Kind: {}", score),
+            Score::FullHouse(score) => write!(f, "Full House: {}", score),
+            Score::SmallStraight(score) => write!(f, "Small Straight: {}", score),
+            Score::LargeStraight(score) => write!(f, "Large Straight: {}", score),
+            Score::Chance(score) => write!(f, "Chance: {}", score),
+            Score::Yahtzee(score) => write!(f, "Yahtzee: {}", score),
         }
     }
 }
@@ -138,8 +138,8 @@ impl Dice {
         let mut dice = self.dice;
         dice.sort();
         for i in 0..dice.len() - 1 {
-            if self.dice[i] != self.dice[i+1] + 1 {
-                return false
+            if self.dice[i] != self.dice[i + 1] + 1 {
+                return false;
             }
         }
         true
@@ -149,13 +149,13 @@ impl Dice {
         let mut dice = self.dice;
         dice.sort();
         for i in 0..dice.len() - 2 {
-            if self.dice[i] != self.dice[i+1] + 1 {
-                return false
+            if self.dice[i] != self.dice[i + 1] + 1 {
+                return false;
             }
         }
         for i in 1..dice.len() - 1 {
-            if self.dice[i] != self.dice[i+1] + 1 {
-                return false
+            if self.dice[i] != self.dice[i + 1] + 1 {
+                return false;
             }
         }
         true
@@ -198,7 +198,6 @@ fn read_values<T: str::FromStr>() -> Result<Vec<T>, T::Err> {
     input.trim().split(",").map(|word| word.parse()).collect()
 }
 
-
 fn introduction() {
     println!("Hello and welcome to YAHTZEE!!!")
 }
@@ -211,7 +210,7 @@ fn reroll(dice: &mut Dice) -> &mut Dice {
     for die in rerolls {
         dice.roll(die as usize - 1);
     }
-    
+
     dice
 }
 
@@ -223,8 +222,7 @@ fn possible_scores(dice: Dice) -> Vec<Score> {
             match dice.upper_score(die_face) {
                 Ok(score) => scores.push(score),
                 Err(err) => println!("{}", err),
-            }
-            ;
+            };
         }
     }
 
@@ -250,25 +248,26 @@ fn round() -> u32 {
     let score = 0;
 
     'rounds: while rolls < 4 {
-        println!("\n{}", dice);
+        println!("\nRoll {}: {}", rolls, dice);
+
         let scores = possible_scores(dice);
-        println!("Scores: ");
+        println!("\nScores: ");
         for score in scores {
             println!("{}", score)
         }
-        println!("put a function here to check scores based on dice");
+
         if rolls < 3 {
             let is_reroll: bool = loop {
-                println!("Do you want to reroll? true/false");
+                println!("\nDo you want to reroll? true/false");
                 match read_value() {
                     Ok(is_reroll) => break is_reroll,
                     Err(err) => {
                         println!("{}", err);
                         continue;
-                    },
+                    }
                 }
             };
-            
+
             if !is_reroll {
                 break 'rounds;
             }
@@ -296,7 +295,7 @@ fn get_player_name() -> String {
 
 fn main() {
     introduction();
-    
+
     let player_count: u32 = loop {
         println!("How many players?");
         match read_value() {
@@ -304,10 +303,10 @@ fn main() {
             Err(err) => {
                 println!("{}", err);
                 continue;
-            },
+            }
         };
     };
-    
+
     let mut players: Vec<Player> = Vec::new();
     if player_count == 1 {
         println!("Single Player game");
@@ -318,5 +317,8 @@ fn main() {
 
     println!("{:?}", players);
 
-    round();
+    for round_incr in 1..=13 {
+        println!("\nRound {}", round_incr);
+        round();
+    }
 }

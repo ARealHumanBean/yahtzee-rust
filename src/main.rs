@@ -148,7 +148,6 @@ impl Dice {
         let mut dice = self.dice;
         dice.sort();
         let mut sequence_counter = 0;
-        println!("{:?}", dice);
         for i in 0..dice.len() - 1 {
             if dice[i] + 1 == dice[i + 1] {
                 sequence_counter = sequence_counter + 1;

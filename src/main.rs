@@ -2,8 +2,8 @@ use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 use std::{fmt, io, str};
 
-
 const NUM_ROUNDS: u8 = 13;
+
 /// Holds the different Score types a Yahtzee game can have
 ///
 /// ```
@@ -119,45 +119,51 @@ impl Dice {
             return Err(format!("count is 0 for die value of {}", die_face));
         }
 
-        return match die_face {
+        match die_face {
             1 => Ok(Score::Aces(count)),
             2 => Ok(Score::Twos(count * die_face)),
             3 => Ok(Score::Threes(count * die_face)),
             4 => Ok(Score::Fours(count * die_face)),
             5 => Ok(Score::Fives(count * die_face)),
             6 => Ok(Score::Sixes(count * die_face)),
-            _ => Err(format!("die_face value {} too large. Needs to be 1-6", die_face)),
+            _ => Err(format!(
+                "die_face value {} too large. Needs to be 1-6",
+                die_face
+            )),
         }
-        
     }
 
     fn is_large_straight(self) -> bool {
         let mut dice = self.dice;
         dice.sort();
         for i in 0..dice.len() - 1 {
-            if self.dice[i] + 1 != self.dice[i + 1] {
+            if dice[i] + 1 != dice[i + 1] {
                 return false;
             }
         }
         true
     }
 
-    /// does not work. Should use slices instead to make this work. 
     fn is_small_straight(self) -> bool {
         let mut dice = self.dice;
         dice.sort();
-        // if self.dice[..4]
-        for i in 0..dice.len() - 2 {
-            if self.dice[i] + 1 != self.dice[i + 1] {
-                return false;
+        let mut sequence_counter = 0;
+        println!("{:?}", dice);
+        for i in 0..dice.len() - 1 {
+            if dice[i] + 1 == dice[i + 1] {
+                sequence_counter = sequence_counter + 1;
+            } else if dice[i] == dice[i + 1] {
+                continue;
+            } else {
+                sequence_counter = 0;
+            }
+
+            if sequence_counter == 3 {
+                return true;
             }
         }
-        for i in 1..dice.len() - 1 {
-            if self.dice[i] + 1 != self.dice[i + 1] {
-                return false;
-            }
-        }
-        true
+
+        false
     }
 }
 
@@ -318,6 +324,5 @@ fn main() {
             println!("Current Score: {}", player.score);
             round();
         }
-
     }
 }

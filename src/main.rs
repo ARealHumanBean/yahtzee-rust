@@ -1,15 +1,18 @@
 use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 use std::{fmt, io, str};
+use derive_is_enum_variant;
 
 const NUM_ROUNDS: u8 = 13;
 
 /// Holds the different Score types a Yahtzee game can have
 ///
 /// ```
-/// let aces = Score::Aces = 2;
+/// let aces = Score::Aces(2);
 /// assert_eq!(aces, 2);
 /// ```
+#[derive(Debug)]
+#[derive(derive_is_enum_variant::is_enum_variant)]
 enum Score {
     Aces(u8),
     Twos(u8),
@@ -24,6 +27,85 @@ enum Score {
     LargeStraight(u8),
     Chance(u8),
     Yahtzee(u8),
+}
+
+impl Score {
+    fn find_yahtzee(player: Player) -> Option<Score> {
+        for i in 1..player.dice.len() {
+            if player.dice[0] != player.dice[i] {
+                return None;
+            }
+        }
+        // bonus points for already scoring yahtzee
+        if player.scores.iter().any(| score | score.is_yahtzee()) {
+            return Some(Score::Yahtzee(150));
+        }
+
+        return Some(Score::Yahtzee(50));
+    }
+
+    fn find_upper_score(player: Player, die_face: u8) -> Option<Score> {
+        let mut count = 0;
+        for die in player.dice.iter() {
+            if *die == die_face {
+                count = count + 1;
+            }
+        }
+        if count == 0 {
+            return None;
+        }
+
+        match die_face {
+            1 => Some(Score::Aces(count)),
+            2 => Some(Score::Twos(count * die_face)),
+            3 => Some(Score::Threes(count * die_face)),
+            4 => Some(Score::Fours(count * die_face)),
+            5 => Some(Score::Fives(count * die_face)),
+            6 => Some(Score::Sixes(count * die_face)),
+            _ => None,
+        }
+    }
+
+    fn find_large_straight(player: Player) -> Option<Score> {
+        if player.scores.iter().any(| score | score.is_large_straight()) {
+            return None;
+        }
+
+        let mut dice = player.dice;
+        dice.sort();
+        for i in 0..dice.len() - 1 {
+            if dice[i] + 1 != dice[i + 1] {
+                return None;
+            }
+        }
+
+        Some(Score::LargeStraight(40))
+    }
+
+    fn find_small_straight(player: Player) -> Option<Score> {
+        if player.scores.iter().any(| score | score.is_small_straight()) {
+            return None;
+        }
+
+        let mut dice = player.dice;
+        dice.sort();
+        let mut comparison_correct_count = 0; // what's a good name for you?
+        for i in 0..dice.len() - 1 {
+            if dice[i] + 1 == dice[i + 1] {
+                comparison_correct_count = comparison_correct_count + 1;
+            } else if dice[i] == dice[i + 1] {
+                continue;
+            } else {
+                comparison_correct_count = 0;
+            }
+
+            if comparison_correct_count == 3 {
+                return Some(Score::SmallStraight(30));
+            }
+        }
+
+        None
+    }
 }
 
 impl fmt::Display for Score {
@@ -56,6 +138,8 @@ impl fmt::Display for Score {
 struct Player {
     name: String,
     score: u32,
+    dice: [u8; 5],
+    scores: Vec<Score>,
 }
 
 impl Player {
@@ -63,9 +147,65 @@ impl Player {
         Player {
             name: name,
             score: 0,
+            dice: [0;5],
+            scores: vec![],
         }
     }
+
+    fn show_dice(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Dice: [{}]",
+            self.dice
+                .iter()
+                .enumerate()
+                .map(|(i, die)| format!("D{}:{}", i + 1, die))
+                .collect::<Vec<String>>()
+                .join(" ")
+        )
+    }
+
+    fn roll_dice(mut self) {
+        let mut rng = rand::thread_rng();
+        let die_range = Uniform::from(1..7);
+
+        for die in self.dice.iter_mut() {
+            *die = die_range.sample(&mut rng) as u8;
+        }
+    }
+
+    fn roll_die(mut self, die: usize) {
+        if die > self.dice.len() - 1 {
+            println!("out of bounds");
+            return;
+        }
+
+        let mut rng = rand::thread_rng();
+        self.dice[die] = rng.gen_range(0, 6);
+    }
 }
+
+impl fmt::Display for Player {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{0}'s Scores:\n{1}\n{0}'s Dice: [{2}]",
+            self.name,
+            self.scores
+                .iter()
+                .map(| score | format!("{}", score))
+                .collect::<Vec<String>>()
+                .join("\n"),
+            self.dice
+                .iter()
+                .enumerate()
+                .map(|(i, die)| format!("D{}:{}", i + 1, die))
+                .collect::<Vec<String>>()
+                .join(" "),
+        )
+    }
+}
+
 #[derive(Copy, Clone)]
 struct Dice {
     dice: [u8; 5],
@@ -147,17 +287,17 @@ impl Dice {
     fn is_small_straight(self) -> bool {
         let mut dice = self.dice;
         dice.sort();
-        let mut sequence_counter = 0;
+        let mut comparison_correct_count = 0; // what's a good name for you?
         for i in 0..dice.len() - 1 {
             if dice[i] + 1 == dice[i + 1] {
-                sequence_counter = sequence_counter + 1;
+                comparison_correct_count = comparison_correct_count + 1;
             } else if dice[i] == dice[i + 1] {
                 continue;
             } else {
-                sequence_counter = 0;
+                comparison_correct_count = 0;
             }
 
-            if sequence_counter == 3 {
+            if comparison_correct_count == 3 {
                 return true;
             }
         }

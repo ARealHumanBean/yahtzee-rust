@@ -1,8 +1,8 @@
-use crate::input::*;
-use crate::score::Score;
+use std::fmt;
 use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
-use std::fmt;
+use crate::input::*;
+use crate::score::Score;
 
 #[derive(Debug)]
 pub struct Player {

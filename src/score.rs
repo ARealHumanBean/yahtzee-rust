@@ -1,7 +1,6 @@
-use derive_is_enum_variant::is_enum_variant;
-
-use crate::player::Player;
 use std::fmt;
+use derive_is_enum_variant::is_enum_variant;
+use crate::player::Player;
 
 #[derive(Debug, is_enum_variant)]
 pub enum Score {

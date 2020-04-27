@@ -1,7 +1,7 @@
+use derive_is_enum_variant;
 use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 use std::{fmt, io, str};
-use derive_is_enum_variant;
 
 const NUM_ROUNDS: u8 = 13;
 
@@ -11,8 +11,7 @@ const NUM_ROUNDS: u8 = 13;
 /// let aces = Score::Aces(2);
 /// assert_eq!(aces, 2);
 /// ```
-#[derive(Debug)]
-#[derive(derive_is_enum_variant::is_enum_variant)]
+#[derive(Debug, derive_is_enum_variant::is_enum_variant)]
 enum Score {
     Aces(u8),
     Twos(u8),
@@ -30,21 +29,21 @@ enum Score {
 }
 
 impl Score {
-    fn find_yahtzee(player: Player) -> Option<Score> {
+    fn find_yahtzee(player: &Player) -> Option<Score> {
         for i in 1..player.dice.len() {
             if player.dice[0] != player.dice[i] {
                 return None;
             }
         }
         // bonus points for already scoring yahtzee
-        if player.scores.iter().any(| score | score.is_yahtzee()) {
+        if player.scores.iter().any(|score| score.is_yahtzee()) {
             return Some(Score::Yahtzee(150));
         }
 
         return Some(Score::Yahtzee(50));
     }
 
-    fn find_upper_score(player: Player, die_face: u8) -> Option<Score> {
+    fn find_upper_score(player: &Player, die_face: u8) -> Option<Score> {
         let mut count = 0;
         for die in player.dice.iter() {
             if *die == die_face {
@@ -66,8 +65,8 @@ impl Score {
         }
     }
 
-    fn find_large_straight(player: Player) -> Option<Score> {
-        if player.scores.iter().any(| score | score.is_large_straight()) {
+    fn find_large_straight(player: &Player) -> Option<Score> {
+        if player.scores.iter().any(|score| score.is_large_straight()) {
             return None;
         }
 
@@ -82,8 +81,8 @@ impl Score {
         Some(Score::LargeStraight(40))
     }
 
-    fn find_small_straight(player: Player) -> Option<Score> {
-        if player.scores.iter().any(| score | score.is_small_straight()) {
+    fn find_small_straight(player: &Player) -> Option<Score> {
+        if player.scores.iter().any(|score| score.is_small_straight()) {
             return None;
         }
 
@@ -147,9 +146,28 @@ impl Player {
         Player {
             name: name,
             score: 0,
-            dice: [0;5],
+            dice: [0; 5],
             scores: vec![],
         }
+    }
+
+    fn roll_dice(&mut self) {
+        let mut rng = rand::thread_rng();
+        let die_range = Uniform::from(1..7);
+
+        for die in self.dice.iter_mut() {
+            *die = die_range.sample(&mut rng) as u8;
+        }
+    }
+
+    fn roll_die(&mut self, die: usize) {
+        if die > self.dice.len() - 1 {
+            println!("out of bounds");
+            return;
+        }
+
+        let mut rng = rand::thread_rng();
+        self.dice[die] = rng.gen_range(0, 6);
     }
 
     fn show_dice(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -165,23 +183,38 @@ impl Player {
         )
     }
 
-    fn roll_dice(mut self) {
-        let mut rng = rand::thread_rng();
-        let die_range = Uniform::from(1..7);
+    /// rerolls dice the user chooses to reroll
+    fn reroll(&mut self) {
+        println!("Enter the dice number of each dice you want to reroll seperated by commas(,)");
+        let rerolls: Vec<u8> = read_values().unwrap();
 
-        for die in self.dice.iter_mut() {
-            *die = die_range.sample(&mut rng) as u8;
+        for die in rerolls {
+            self.roll_die(die as usize - 1);
         }
     }
 
-    fn roll_die(mut self, die: usize) {
-        if die > self.dice.len() - 1 {
-            println!("out of bounds");
-            return;
+    fn possible_scores(&mut self) -> Vec<Score> {
+        let mut scores: Vec<Score> = vec![];
+
+        for die_face in 1..=6 {
+            if let Some(upper_score) = Score::find_upper_score(self, die_face) {
+                scores.push(upper_score);
+            };
         }
 
-        let mut rng = rand::thread_rng();
-        self.dice[die] = rng.gen_range(0, 6);
+        if let Some(small_straight) = Score::find_small_straight(self) {
+            scores.push(small_straight);
+        }
+
+        if let Some(large_straight) = Score::find_large_straight(self) {
+            scores.push(large_straight);
+        }
+
+        if let Some(yahtzee) = Score::find_yahtzee(self) {
+            scores.push(yahtzee);
+        }
+
+        scores
     }
 }
 
@@ -189,134 +222,21 @@ impl fmt::Display for Player {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{0}'s Scores:\n{1}\n{0}'s Dice: [{2}]",
-            self.name,
-            self.scores
+            "{player}'s Scores:\n{scores}\n{player}'s Dice: [{dice}]",
+            player = self.name,
+            scores = self
+                .scores
                 .iter()
-                .map(| score | format!("{}", score))
+                .map(|score| format!("{}", score))
                 .collect::<Vec<String>>()
                 .join("\n"),
-            self.dice
+            dice = self
+                .dice
                 .iter()
                 .enumerate()
                 .map(|(i, die)| format!("D{}:{}", i + 1, die))
                 .collect::<Vec<String>>()
                 .join(" "),
-        )
-    }
-}
-
-#[derive(Copy, Clone)]
-struct Dice {
-    dice: [u8; 5],
-}
-
-impl Dice {
-    /// create new dice every round
-    /// ```
-    /// use Dice::new();
-    /// assert_eq!(1, 1);
-    /// ```
-    fn new() -> Dice {
-        let mut new_dice = Dice { dice: [0; 5] };
-        let mut rng = rand::thread_rng();
-        let die_range = Uniform::from(1..7);
-
-        for die in new_dice.dice.iter_mut() {
-            *die = die_range.sample(&mut rng) as u8;
-        }
-
-        new_dice
-    }
-
-    fn roll(&mut self, die: usize) {
-        if die > self.dice.len() - 1 {
-            println!("out of bounds");
-            return;
-        }
-
-        let mut rng = rand::thread_rng();
-        self.dice[die] = rng.gen_range(0, 6);
-    }
-
-    fn is_yahtzee(self) -> bool {
-        for i in 1..self.dice.len() {
-            if self.dice[0] != self.dice[i] {
-                return false;
-            }
-        }
-        true
-    }
-
-    fn upper_score(self, die_face: u8) -> Result<Score, String> {
-        let mut count = 0;
-        for die in self.dice.iter() {
-            if *die == die_face {
-                count = count + 1;
-            }
-        }
-        if count == 0 {
-            return Err(format!("count is 0 for die value of {}", die_face));
-        }
-
-        match die_face {
-            1 => Ok(Score::Aces(count)),
-            2 => Ok(Score::Twos(count * die_face)),
-            3 => Ok(Score::Threes(count * die_face)),
-            4 => Ok(Score::Fours(count * die_face)),
-            5 => Ok(Score::Fives(count * die_face)),
-            6 => Ok(Score::Sixes(count * die_face)),
-            _ => Err(format!(
-                "die_face value {} too large. Needs to be 1-6",
-                die_face
-            )),
-        }
-    }
-
-    fn is_large_straight(self) -> bool {
-        let mut dice = self.dice;
-        dice.sort();
-        for i in 0..dice.len() - 1 {
-            if dice[i] + 1 != dice[i + 1] {
-                return false;
-            }
-        }
-        true
-    }
-
-    fn is_small_straight(self) -> bool {
-        let mut dice = self.dice;
-        dice.sort();
-        let mut comparison_correct_count = 0; // what's a good name for you?
-        for i in 0..dice.len() - 1 {
-            if dice[i] + 1 == dice[i + 1] {
-                comparison_correct_count = comparison_correct_count + 1;
-            } else if dice[i] == dice[i + 1] {
-                continue;
-            } else {
-                comparison_correct_count = 0;
-            }
-
-            if comparison_correct_count == 3 {
-                return true;
-            }
-        }
-
-        false
-    }
-}
-
-impl fmt::Display for Dice {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Dice: [{}]",
-            self.dice
-                .iter()
-                .enumerate()
-                .map(|(i, die)| format!("D{}:{}", i + 1, die))
-                .collect::<Vec<String>>()
-                .join(" ")
         )
     }
 }
@@ -346,81 +266,6 @@ fn introduction() {
     println!("Hello and welcome to YAHTZEE!!!")
 }
 
-/// rerolls dice the user chooses to reroll
-fn reroll(dice: &mut Dice) -> &mut Dice {
-    println!("Enter the dice number of each dice you want to reroll seperated by commas(,)");
-    let rerolls: Vec<u8> = read_values().unwrap();
-
-    for die in rerolls {
-        dice.roll(die as usize - 1);
-    }
-
-    dice
-}
-
-fn possible_scores(dice: Dice) -> Vec<Score> {
-    let mut scores: Vec<Score> = vec![];
-
-    for die_face in 1..=6 {
-        match dice.upper_score(die_face) {
-            Ok(score) => scores.push(score),
-            Err(_) => (),
-        };
-    }
-
-    if dice.is_small_straight() {
-        scores.push(Score::SmallStraight(30));
-    }
-
-    if dice.is_large_straight() {
-        scores.push(Score::LargeStraight(40));
-    }
-
-    if dice.is_yahtzee() {
-        scores.push(Score::Yahtzee(50));
-    }
-
-    scores
-}
-
-fn round() -> u32 {
-    let mut dice = Dice::new();
-    let mut rolls = 1;
-    let score = 0;
-
-    'rounds: while rolls < 4 {
-        let scores = possible_scores(dice);
-        println!("\nScores: ");
-        for score in scores {
-            println!("\t{} points", score)
-        }
-
-        if rolls < 3 {
-            let is_reroll: bool = loop {
-                println!("\nRoll {}: {}", rolls, dice);
-                println!("\nDo you want to reroll? true/false");
-                match read_value() {
-                    Ok(is_reroll) => break is_reroll,
-                    Err(err) => {
-                        println!("{}", err);
-                        continue;
-                    }
-                }
-            };
-
-            if !is_reroll {
-                break 'rounds;
-            }
-
-            reroll(&mut dice);
-        }
-        rolls = rolls + 1;
-    }
-
-    println!("function to score here");
-    score
-}
-
 /// Gets the players name from standard input
 fn get_player_name() -> String {
     let mut player_name = String::new();
@@ -438,30 +283,62 @@ fn get_player_name() -> String {
 fn main() {
     introduction();
 
-    let player_count: u32 = loop {
-        println!("How many players?");
-        match read_value() {
-            Ok(num) => break num,
-            Err(err) => {
-                println!("{}", err);
-                continue;
-            }
-        };
-    };
+    // let player_count: u32 = loop {
+    //     println!("How many players?");
+    //     match read_value() {
+    //         Ok(num) => break num,
+    //         Err(err) => {
+    //             println!("{}", err);
+    //             continue;
+    //         }
+    //     };
+    // };
 
-    let mut players: Vec<Player> = Vec::new();
-    if player_count == 1 {
-        println!("Single Player game");
-        players.push(Player::new(get_player_name()));
-    } else {
-        println!("{} Player game", player_count);
-    }
+    // let mut players: Vec<Player> = Vec::new();
+    // for i in 0..player_count {
+    //     println!("Player: {}", i);
+    //     let player = Player::new(get_player_name());
+    //     players.push(player);
+    // }
 
+    let mut player = Player::new(get_player_name());
     for round_incr in 1..=NUM_ROUNDS {
-        for player in players.iter() {
-            println!("\n{}'s Round {}", player.name, round_incr);
-            println!("Current Score: {}", player.score);
-            round();
+        print!("\n{}'s Round {}", player.name, round_incr);
+        println!("  |  Current Score: {}", player.score);
+        player.roll_dice();
+        let mut rolls = 1;
+        let score = 0;
+
+        'rounds: while rolls < 4 {
+            let possible_scores = player.possible_scores();
+            println!("{}\n", player);
+
+            println!("Possible Scores:\n");
+            for possible_score in possible_scores {
+                println!("\t{} points", possible_score)
+            }
+
+            if rolls < 3 {
+                let is_reroll: bool = loop {
+                    println!("\nDo you want to reroll? true/false");
+                    match read_value() {
+                        Ok(is_reroll) => break is_reroll,
+                        Err(err) => {
+                            println!("{}", err);
+                            continue;
+                        }
+                    }
+                };
+
+                if !is_reroll {
+                    break 'rounds;
+                }
+
+                player.reroll();
+            }
+            rolls = rolls + 1;
         }
+
+        println!("function to score here");
     }
 }

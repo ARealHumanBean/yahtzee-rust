@@ -103,8 +103,9 @@ impl fmt::Display for Score {
     /// Display for different scores
     ///
     /// ```
+    /// use yahtzee::score::Score;
     /// let twos = Score::Twos(4);
-    /// assert_eq!(format!("{}", twos),"4");
+    /// assert_eq!(format!("{}", twos),"Twos: \t4");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

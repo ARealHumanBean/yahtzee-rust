@@ -290,41 +290,41 @@ fn main() {
 
     let mut player = Player::new(get_player_name());
     for round_incr in 1..=NUM_ROUNDS {
-        print!("\n{}'s Round {}", player.name, round_incr);
-        println!("  |  Current Score: {}", player.score);
         player.roll_dice();
-        let mut rolls = 1;
 
-        'rounds: while rolls < 4 {
-            let possible_scores = player.possible_scores();
+        let mut possible_scores: Vec<Score> = Vec::new();
+        for rolls in 1..4 {
+            print!("\n{}'s Round {}", player.name, round_incr);
+            print!("  |  Current Score: {}", player.score);
+            println!("  |  Roll: {}", rolls);
+
+            let scores = player.possible_scores();
             println!("{}\n", player);
 
             println!("Possible Scores:\n");
-            for possible_score in possible_scores {
+            for possible_score in scores.iter() {
                 println!("\t{} points", possible_score)
             }
 
-            if rolls < 3 {
-                let is_reroll: bool = loop {
-                    println!("\nDo you want to reroll? true/false");
-                    match read_value() {
-                        Ok(is_reroll) => break is_reroll,
-                        Err(err) => {
-                            println!("{}", err);
-                            continue;
-                        }
+            let is_reroll: bool = loop {
+                println!("\nDo you want to reroll? true/false");
+                match read_value() {
+                    Ok(is_reroll) => break is_reroll,
+                    Err(err) => {
+                        println!("{}", err);
+                        continue;
                     }
-                };
-
-                if !is_reroll {
-                    break 'rounds;
                 }
-
+            };
+            
+            if is_reroll {
                 player.reroll();
+            } else {
+                possible_scores.extend(scores);
+                break;
             }
-            rolls = rolls + 1;
         }
 
-        println!("function to score here");
+        println!("function to score here {:?}", possible_scores);
     }
 }

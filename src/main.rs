@@ -1,4 +1,4 @@
-use derive_is_enum_variant;
+use derive_is_enum_variant::is_enum_variant;
 use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 use std::{fmt, io, str};
@@ -11,7 +11,7 @@ const NUM_ROUNDS: u8 = 13;
 /// let aces = Score::Aces(2);
 /// assert_eq!(aces, 2);
 /// ```
-#[derive(Debug, derive_is_enum_variant::is_enum_variant)]
+#[derive(Debug, is_enum_variant)]
 enum Score {
     Aces(u8),
     Twos(u8),

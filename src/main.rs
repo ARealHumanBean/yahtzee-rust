@@ -170,19 +170,6 @@ impl Player {
         self.dice[die] = rng.gen_range(0, 6);
     }
 
-    fn show_dice(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Dice: [{}]",
-            self.dice
-                .iter()
-                .enumerate()
-                .map(|(i, die)| format!("D{}:{}", i + 1, die))
-                .collect::<Vec<String>>()
-                .join(" ")
-        )
-    }
-
     /// rerolls dice the user chooses to reroll
     fn reroll(&mut self) {
         println!("Enter the dice number of each dice you want to reroll seperated by commas(,)");
@@ -307,7 +294,6 @@ fn main() {
         println!("  |  Current Score: {}", player.score);
         player.roll_dice();
         let mut rolls = 1;
-        let score = 0;
 
         'rounds: while rolls < 4 {
             let possible_scores = player.possible_scores();

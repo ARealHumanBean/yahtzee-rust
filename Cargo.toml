@@ -1,5 +1,5 @@
 [package]
-name = "yahtzee-rustlang"
+name = "yahtzee_rustlang"
 version = "0.1.0"
 authors = ["Dylan Burton <dylanjburton2@gmail.com>"]
 edition = "2018"

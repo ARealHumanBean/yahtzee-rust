@@ -119,7 +119,7 @@ version = "0.9.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "yahtzee-rustlang"
+name = "yahtzee_rustlang"
 version = "0.1.0"
 dependencies = [
  "derive_is_enum_variant 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",

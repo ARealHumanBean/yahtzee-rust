@@ -1,6 +1,6 @@
-use yahtzee_rustlang::input::*;
-use yahtzee_rustlang::player::Player;
-use yahtzee_rustlang::score::Score;
+use yahtzee::input::*;
+use yahtzee::player::Player;
+use yahtzee::score::Score;
 
 const NUM_ROUNDS: u8 = 13;
 

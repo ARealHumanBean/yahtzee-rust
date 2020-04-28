@@ -11,7 +11,7 @@ use crate::player::Player;
 /// let score_value = 50;
 /// let yahtzee = Score::Yahtzee(score_value);
 /// ```
-#[derive(Debug, is_enum_variant, PartialEq)]
+#[derive(is_enum_variant, PartialEq)]
 pub enum Score {
     Aces(u8),
     Twos(u8),
@@ -58,7 +58,8 @@ impl Score {
         Some(Score::Yahtzee(50))
     }
 
-    /// Find an upper score for a die value 
+    /// Find an upper score for a die value
+    /// 
     /// # Example
     /// ```rust
     /// use yahtzee::player::Player;
@@ -94,6 +95,7 @@ impl Score {
     }
 
     /// Find a large straight from dice
+    /// 
     /// # Example
     /// ```rust
     /// use yahtzee::player::Player;
@@ -123,6 +125,7 @@ impl Score {
     }
 
     /// Find a small straight from dice
+    /// 
     /// # Example
     /// ```rust
     /// use yahtzee::player::Player;
@@ -164,7 +167,8 @@ impl Score {
 impl fmt::Display for Score {
     /// Display for different scores
     ///
-    /// ```
+    /// # Example
+    /// ```rust
     /// use yahtzee::score::Score;
     /// let twos = Score::Twos(4);
     /// assert_eq!(format!("{}", twos),"Twos: \t4");

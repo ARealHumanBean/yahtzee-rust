@@ -11,7 +11,7 @@ use crate::player::Player;
 /// let score_value = 50;
 /// let yahtzee = Score::Yahtzee(score_value);
 /// ```
-#[derive(is_enum_variant, PartialEq)]
+#[derive(Debug, is_enum_variant, PartialEq)]
 pub enum Score {
     Aces(u8),
     Twos(u8),

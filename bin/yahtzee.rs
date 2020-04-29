@@ -1,5 +1,6 @@
 use yahtzee::input::*;
 use yahtzee::player::Player;
+use yahtzee::score::Score;
 
 const NUM_ROUNDS: u8 = 13;
 
@@ -7,7 +8,10 @@ fn introduction() {
     println!("Hello and welcome to YAHTZEE!!!")
 }
 
-fn end_game() {
+fn end_game(player: &mut Player) {
+    if let Some(score) = Score::upper_score_bonus(&player) {
+        player.update_score(score);
+    }
     println!("Thank you for playing yahtzee.")
 }
 
@@ -87,5 +91,5 @@ fn main() {
         }
     }
 
-    end_game();
+    end_game(&mut player);
 }

@@ -91,7 +91,14 @@ impl Player {
     /// let mut player = Player::new("test".to_owned());
     /// player.dice = [1,2,4,2,3];
     /// let scores = player.possible_scores();
-    /// assert_eq!(scores, vec![Score::Aces(1), Score::Twos(4), Score::Threes(3), Score::Fours(4), Score::SmallStraight(30)]);
+    /// assert_eq!(scores, 
+    ///     vec![Score::Aces(1), 
+    ///         Score::Twos(4), 
+    ///         Score::Threes(3), 
+    ///         Score::Fours(4), 
+    ///         Score::Fives(0), 
+    ///         Score::Sixes(0), 
+    ///         Score::SmallStraight(30)]);
     /// ```
     pub fn possible_scores(&mut self) -> Vec<Score> {
         let mut scores: Vec<Score> = vec![];
@@ -139,6 +146,7 @@ impl Player {
                 Score::Fours(score) => score,
                 Score::Fives(score) => score,
                 Score::Sixes(score) => score,
+                Score::UpperScoreBonus(score) => score,
                 Score::ThreeOfAKind(score) => score,
                 Score::FourOfAKind(score) => score,
                 Score::FullHouse(score) => score,

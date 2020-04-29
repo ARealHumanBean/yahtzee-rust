@@ -26,6 +26,7 @@ pub enum Score {
     LargeStraight(u32),
     Chance(u32),
     Yahtzee(u32),
+    UpperScoreBonus(u32),
 }
 
 /// Methods to check for valid scores
@@ -61,6 +62,10 @@ impl Score {
 
     /// Find an upper score for a die value
     ///
+    /// The score value associated with the score enum is the die face
+    /// multiplied by the count of them in the dice roll. So if the player has
+    /// no dice for sixes then the score would be `Score::Sixes(0)`
+    ///
     /// # Example
     /// ```rust
     /// use yahtzee::player::Player;
@@ -79,9 +84,6 @@ impl Score {
             if *die == die_face {
                 count = count + 1;
             }
-        }
-        if count == 0 {
-            return None;
         }
 
         match die_face {
@@ -128,6 +130,41 @@ impl Score {
                 }
             }
             _ => None,
+        }
+    }
+
+    /// returns the score bonus if the total of upper scores is 63 or more.
+    /// 
+    /// ```rust
+    /// use yahtzee::player::Player;
+    /// use yahtzee::score::Score;
+    ///
+    /// let mut player = Player::new("test".to_owned());
+    /// player.update_score(Score::Sixes(36));
+    /// player.update_score(Score::Fives(30));
+    /// if let Some(score) = Score::upper_score_bonus(&player) {
+    ///     assert_eq!(score, Score::UpperScoreBonus(35));
+    /// } else {
+    ///     assert!(false);
+    /// }
+    /// ```
+    pub fn upper_score_bonus(player: &Player) -> Option<Score> {
+        let mut upper_score_total = 0;
+        for score in player.scores.iter() {
+            match score {
+                Score::Aces(score)
+                | Score::Twos(score)
+                | Score::Threes(score)
+                | Score::Fours(score)
+                | Score::Fives(score)
+                | Score::Sixes(score) => upper_score_total = upper_score_total + score,
+                _ => (),
+            }
+        }
+        if upper_score_total >= 63 {
+            Some(Score::UpperScoreBonus(35))
+        } else {
+            None
         }
     }
 
@@ -218,6 +255,7 @@ impl fmt::Display for Score {
             Score::Fours(score) => write!(f, "Fours: {}", score),
             Score::Fives(score) => write!(f, "Fives: {}", score),
             Score::Sixes(score) => write!(f, "Sixes: {}", score),
+            Score::UpperScoreBonus(score) => write!(f, "Upper Score Bonus! {}", score),
             Score::ThreeOfAKind(score) => write!(f, "Three of a Kind: {}", score),
             Score::FourOfAKind(score) => write!(f, "Four of a Kind: {}", score),
             Score::FullHouse(score) => write!(f, "Full House: {}", score),

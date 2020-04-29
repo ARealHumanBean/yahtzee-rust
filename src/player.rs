@@ -118,12 +118,12 @@ impl Player {
     }
 
     /// update player score and scores
-    /// 
+    ///
     /// # Example
     /// ```rust
     /// use yahtzee::score::Score;
     /// use yahtzee::player::Player;
-    /// 
+    ///
     /// let mut player = Player::new("test".to_owned());
     /// player.update_score(Score::Threes(9));
     /// assert_eq!(player.score, 9);
@@ -131,21 +131,22 @@ impl Player {
     /// ```
     pub fn update_score(&mut self, score: Score) {
         self.scores.push(score);
-        self.score = self.score + match score {
-            Score::Aces(score) => score,
-            Score::Twos(score) => score,
-            Score::Threes(score) => score,
-            Score::Fours(score) => score,
-            Score::Fives(score) => score,
-            Score::Sixes(score) => score,
-            Score::ThreeOfAKind(score) => score,
-            Score::FourOfAKind(score) => score,
-            Score::FullHouse(score) => score,
-            Score::SmallStraight(score) => score,
-            Score::LargeStraight(score) => score,
-            Score::Chance(score) => score,
-            Score::Yahtzee(score) => score,
-        } as u32;
+        self.score = self.score
+            + match score {
+                Score::Aces(score) => score,
+                Score::Twos(score) => score,
+                Score::Threes(score) => score,
+                Score::Fours(score) => score,
+                Score::Fives(score) => score,
+                Score::Sixes(score) => score,
+                Score::ThreeOfAKind(score) => score,
+                Score::FourOfAKind(score) => score,
+                Score::FullHouse(score) => score,
+                Score::SmallStraight(score) => score,
+                Score::LargeStraight(score) => score,
+                Score::Chance(score) => score,
+                Score::Yahtzee(score) => score,
+            } as u32;
     }
 }
 
@@ -153,14 +154,14 @@ impl fmt::Display for Player {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{player}'s Scores:\n{scores}\n{player}'s Dice: [{dice}]",
+            "{player}'s Scores: [{scores}]\n{player}'s Dice: [{dice}]",
             player = self.name,
             scores = self
                 .scores
                 .iter()
                 .map(|score| format!("{}", score))
                 .collect::<Vec<String>>()
-                .join("\n"),
+                .join(" "),
             dice = self
                 .dice
                 .iter()

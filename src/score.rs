@@ -28,6 +28,7 @@ pub enum Score {
     Yahtzee(u32),
 }
 
+/// Methods to check for valid scores
 impl Score {
     /// Find yahtzee and return it if found in the dice
     ///

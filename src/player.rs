@@ -1,10 +1,10 @@
-use std::fmt;
-use rand::distributions::{Distribution, Uniform};
-use rand::Rng;
 use crate::input::*;
 use crate::score::Score;
+use rand::distributions::{Distribution, Uniform};
+use rand::Rng;
+use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Player {
     pub name: String,
     pub score: u32,
@@ -13,6 +13,15 @@ pub struct Player {
 }
 
 impl Player {
+    /// Constructer for Player Struct
+    ///
+    /// # Example
+    /// ```rust
+    /// use yahtzee::player::Player;
+    ///
+    /// let player = Player::new("test".to_owned());
+    /// assert_eq!(player, Player{name: "test".to_owned(), score: 0, dice: [0; 5], scores: vec![]});
+    /// ```
     pub fn new(name: String) -> Player {
         Player {
             name: name,
@@ -22,6 +31,17 @@ impl Player {
         }
     }
 
+    /// Randomizes all the dice for a player
+    ///
+    /// # Example
+    /// ```rust
+    /// use yahtzee::player::Player;
+    ///
+    /// let mut player = Player::new("test".to_owned());
+    /// let old_dice = player.dice;
+    /// player.roll_dice();
+    /// assert_ne!(player.dice, old_dice);
+    /// ```
     pub fn roll_dice(&mut self) {
         let mut rng = rand::thread_rng();
         let die_range = Uniform::from(1..7);
@@ -31,6 +51,16 @@ impl Player {
         }
     }
 
+    /// randomizes a single die for a player
+    ///
+    /// ```rust
+    /// use yahtzee::player::Player;
+    ///
+    /// let mut player = Player::new("test".to_owned());
+    /// let old_die = player.dice[0];
+    /// player.roll_die(0);
+    /// assert_ne!(player.dice[0], old_die);
+    /// ```
     pub fn roll_die(&mut self, die: usize) {
         if die > self.dice.len() - 1 {
             println!("out of bounds");
@@ -51,6 +81,21 @@ impl Player {
         }
     }
 
+    /// returns the possible scores from the dice passed
+    ///
+    ///
+    /// possible_scores() calls all the score methods that return a Score enum.
+    ///
+    /// # Example
+    /// ```rust
+    /// use yahtzee::player::Player;
+    /// use yahtzee::score::Score;
+    ///
+    /// let mut player = Player::new("test".to_owned());
+    /// player.dice = [1,2,4,2,3];
+    /// let scores = player.possible_scores();
+    /// assert_eq!(scores, vec![Score::Aces(1), Score::Twos(4), Score::Threes(3), Score::Fours(4), Score::SmallStraight(30)]);
+    /// ```
     pub fn possible_scores(&mut self) -> Vec<Score> {
         let mut scores: Vec<Score> = vec![];
 

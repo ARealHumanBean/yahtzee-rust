@@ -83,9 +83,6 @@ impl Player {
 
     /// returns the possible scores from the dice passed
     ///
-    ///
-    /// possible_scores() calls all the score methods that return a Score enum.
-    ///
     /// # Example
     /// ```rust
     /// use yahtzee::player::Player;

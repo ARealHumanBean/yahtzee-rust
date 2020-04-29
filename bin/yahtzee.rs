@@ -1,6 +1,5 @@
 use yahtzee::input::*;
 use yahtzee::player::Player;
-use yahtzee::score::Score;
 
 const NUM_ROUNDS: u8 = 13;
 
@@ -33,40 +32,55 @@ fn main() {
     for round_incr in 1..=NUM_ROUNDS {
         player.roll_dice();
 
-        let mut possible_scores: Vec<Score> = Vec::new();
         for rolls in 1..4 {
             print!("\n{}'s Round {}", player.name, round_incr);
             print!("  |  Current Score: {}", player.score);
             println!("  |  Roll: {}", rolls);
 
-            let scores = player.possible_scores();
+            let possible_scores = player.possible_scores();
             println!("{}\n", player);
 
             println!("Possible Scores:\n");
-            for possible_score in scores.iter() {
-                println!("\t{} points", possible_score)
+            for (i, possible_score) in possible_scores.iter().enumerate() {
+                println!("\tScore {}: {} points", (i + 1), possible_score)
             }
 
-            let is_reroll: bool = loop {
-                println!("\nDo you want to reroll? true/false");
+            if rolls < 3 {
+                let is_reroll: bool = loop {
+                    println!("\nDo you want to reroll? true/false");
+                    match read_value() {
+                        Ok(is_reroll) => break is_reroll,
+                        Err(err) => {
+                            println!("{}", err);
+                            continue;
+                        }
+                    }
+                };
+
+                if is_reroll {
+                    player.reroll();
+                    continue;
+                }
+            }
+
+            let score_index: usize = loop {
+                println!("Select a possible score");
                 match read_value() {
-                    Ok(is_reroll) => break is_reroll,
+                    Ok(score_index) => {
+                        if score_index > possible_scores.len() || score_index < 1 {
+                            println!("your selected score is not in the list");
+                        } else {
+                            break score_index;
+                        }
+                    }
                     Err(err) => {
                         println!("{}", err);
                         continue;
                     }
                 }
             };
-
-            if is_reroll {
-                player.reroll();
-            } else {
-                // could ask the user to score here
-                possible_scores.extend(scores);
-                break;
-            }
+            player.scores.push(possible_scores[score_index - 1]);
+            break;
         }
-
-        println!("function to score here {:?}", possible_scores);
     }
 }

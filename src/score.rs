@@ -11,7 +11,7 @@ use std::fmt;
 /// let score_value = 50;
 /// let yahtzee = Score::Yahtzee(score_value);
 /// ```
-#[derive(Debug, is_enum_variant, PartialEq)]
+#[derive(Debug, is_enum_variant, PartialEq, Clone, Copy)]
 pub enum Score {
     Aces(u8),
     Twos(u8),
@@ -84,12 +84,48 @@ impl Score {
         }
 
         match die_face {
-            1 => Some(Score::Aces(count)),
-            2 => Some(Score::Twos(count * die_face)),
-            3 => Some(Score::Threes(count * die_face)),
-            4 => Some(Score::Fours(count * die_face)),
-            5 => Some(Score::Fives(count * die_face)),
-            6 => Some(Score::Sixes(count * die_face)),
+            1 => {
+                if player.scores.iter().any(|score| score.is_aces()) {
+                    None
+                } else {
+                    Some(Score::Aces(count))
+                }
+            }
+            2 => {
+                if player.scores.iter().any(|score| score.is_twos()) {
+                    None
+                } else {
+                    Some(Score::Twos(count * die_face))
+                }
+            }
+            3 => {
+                if player.scores.iter().any(|score| score.is_threes()) {
+                    None
+                } else {
+                    Some(Score::Threes(count * die_face))
+                }
+            }
+            4 => {
+                if player.scores.iter().any(|score| score.is_fours()) {
+                    None
+                } else {
+                    Some(Score::Fours(count * die_face))
+                }
+            }
+            5 => {
+                if player.scores.iter().any(|score| score.is_fives()) {
+                    None
+                } else {
+                    Some(Score::Fives(count * die_face))
+                }
+            }
+            6 => {
+                if player.scores.iter().any(|score| score.is_sixes()) {
+                    None
+                } else {
+                    Some(Score::Sixes(count * die_face))
+                }
+            }
             _ => None,
         }
     }
@@ -175,9 +211,9 @@ impl fmt::Display for Score {
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Score::Aces(score) => write!(f, "Aces: \t{}", score),
-            Score::Twos(score) => write!(f, "Twos: \t{}", score),
-            Score::Threes(score) => write!(f, "Threes: {}", score),
+            Score::Aces(score) => write!(f, "Aces: \t\t{}", score),
+            Score::Twos(score) => write!(f, "Twos: \t\t{}", score),
+            Score::Threes(score) => write!(f, "Threes: \t{}", score),
             Score::Fours(score) => write!(f, "Fours: \t{}", score),
             Score::Fives(score) => write!(f, "Fives: \t{}", score),
             Score::Sixes(score) => write!(f, "Sixes: \t{}", score),

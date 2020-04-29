@@ -91,13 +91,13 @@ impl Player {
     /// let mut player = Player::new("test".to_owned());
     /// player.dice = [1,2,4,2,3];
     /// let scores = player.possible_scores();
-    /// assert_eq!(scores, 
-    ///     vec![Score::Aces(1), 
-    ///         Score::Twos(4), 
-    ///         Score::Threes(3), 
-    ///         Score::Fours(4), 
-    ///         Score::Fives(0), 
-    ///         Score::Sixes(0), 
+    /// assert_eq!(scores,
+    ///     vec![Score::Aces(1),
+    ///         Score::Twos(4),
+    ///         Score::Threes(3),
+    ///         Score::Fours(4),
+    ///         Score::Fives(0),
+    ///         Score::Sixes(0),
     ///         Score::SmallStraight(30)]);
     /// ```
     pub fn possible_scores(&mut self) -> Vec<Score> {
@@ -119,6 +119,10 @@ impl Player {
 
         if let Some(yahtzee) = Score::find_yahtzee(self) {
             scores.push(yahtzee);
+        }
+
+        if let Some(three_of_a_kind) = Score::three_of_a_kind(self) {
+            scores.push(three_of_a_kind);
         }
 
         scores

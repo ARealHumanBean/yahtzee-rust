@@ -64,7 +64,8 @@ impl Score {
     ///
     /// The score value associated with the score enum is the die face
     /// multiplied by the count of them in the dice roll. So if the player has
-    /// no dice for sixes then the score would be `Score::Sixes(0)`
+    /// no dice for sixes, but two for fives, then the score would be
+    /// `Score::Sixes(0)` and `Score::Fives(10)`.
     ///
     /// # Example
     /// ```rust
@@ -133,8 +134,8 @@ impl Score {
         }
     }
 
-    /// returns the score bonus if the total of upper scores is 63 or more.
-    /// 
+    /// returns the score bonus (35) if the total of upper scores is 63 or more.
+    ///
     /// ```rust
     /// use yahtzee::player::Player;
     /// use yahtzee::score::Score;
@@ -168,7 +169,7 @@ impl Score {
         }
     }
 
-    /// Find a large straight from dice
+    /// Find a large straight: a 5 dice sequence of consecutive values
     ///
     /// # Example
     /// ```rust
@@ -198,7 +199,7 @@ impl Score {
         Some(Score::LargeStraight(40))
     }
 
-    /// Find a small straight from dice
+    /// Find a small straight: a 4 dice sequence of consecutive values.
     ///
     /// # Example
     /// ```rust
@@ -235,6 +236,41 @@ impl Score {
         }
 
         None
+    }
+
+    /// find three of a kind and if found, return Score with dice sum as score value
+    ///
+    /// # Example
+    /// ```rust
+    /// use yahtzee::score::Score;
+    /// use yahtzee::player::Player;
+    ///
+    /// let mut player = Player::new("test".to_owned());
+    /// player.dice = [1,1,1,3,6];
+    /// if let Some(score) = Score::three_of_a_kind(&player) {
+    ///     assert_eq!(score, Score::ThreeOfAKind(12)); // 12 is the total of all die faces
+    /// } else {
+    ///     assert!(false);
+    /// }
+    pub fn three_of_a_kind(player: &Player) -> Option<Score> {
+        if player.scores.iter().any(|score| score.is_three_of_a_kind()) {
+            return None;
+        }
+
+        let mut score = 0;
+        for die_face in 1..=6 {
+            let mut count = 0;
+
+            for die in player.dice.iter() {
+                if *die == die_face {
+                    count = count + 1;
+                }
+                if count >= 3 {
+                    score = player.dice.iter().sum();
+                }
+            }
+        }
+        Some(Score::ThreeOfAKind(score))
     }
 }
 

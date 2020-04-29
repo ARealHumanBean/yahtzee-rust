@@ -207,16 +207,16 @@ impl fmt::Display for Score {
     /// ```rust
     /// use yahtzee::score::Score;
     /// let twos = Score::Twos(4);
-    /// assert_eq!(format!("{}", twos),"Twos: \t4");
+    /// assert_eq!(format!("{}", twos),"Twos: 4");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Score::Aces(score) => write!(f, "Aces: \t\t{}", score),
-            Score::Twos(score) => write!(f, "Twos: \t\t{}", score),
-            Score::Threes(score) => write!(f, "Threes: \t{}", score),
-            Score::Fours(score) => write!(f, "Fours: \t{}", score),
-            Score::Fives(score) => write!(f, "Fives: \t{}", score),
-            Score::Sixes(score) => write!(f, "Sixes: \t{}", score),
+            Score::Aces(score) => write!(f, "Aces: {}", score),
+            Score::Twos(score) => write!(f, "Twos: {}", score),
+            Score::Threes(score) => write!(f, "Threes: {}", score),
+            Score::Fours(score) => write!(f, "Fours: {}", score),
+            Score::Fives(score) => write!(f, "Fives: {}", score),
+            Score::Sixes(score) => write!(f, "Sixes: {}", score),
             Score::ThreeOfAKind(score) => write!(f, "Three of a Kind: {}", score),
             Score::FourOfAKind(score) => write!(f, "Four of a Kind: {}", score),
             Score::FullHouse(score) => write!(f, "Full House: {}", score),

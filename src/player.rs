@@ -117,7 +117,18 @@ impl Player {
         scores
     }
 
-    /// update the score by summing the scores
+    /// update player score and scores
+    /// 
+    /// # Example
+    /// ```rust
+    /// use yahtzee::score::Score;
+    /// use yahtzee::player::Player;
+    /// 
+    /// let mut player = Player::new("test".to_owned());
+    /// player.update_score(Score::Threes(9));
+    /// assert_eq!(player.score, 9);
+    /// assert_eq!(player.scores, vec![Score::Threes(9)]);
+    /// ```
     pub fn update_score(&mut self, score: Score) {
         self.scores.push(score);
         self.score = self.score + match score {

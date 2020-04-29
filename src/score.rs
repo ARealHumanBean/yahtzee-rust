@@ -1,13 +1,13 @@
-use std::fmt;
-use derive_is_enum_variant::is_enum_variant;
 use crate::player::Player;
+use derive_is_enum_variant::is_enum_variant;
+use std::fmt;
 
 /// Holds the different types of scores that are possible in a Yahtzee game.
-/// 
+///
 /// # Example
 /// ```rust
 /// use yahtzee::score::Score;
-/// 
+///
 /// let score_value = 50;
 /// let yahtzee = Score::Yahtzee(score_value);
 /// ```
@@ -30,12 +30,12 @@ pub enum Score {
 
 impl Score {
     /// Find yahtzee and return it if found in the dice
-    /// 
+    ///
     /// # Example
     /// ```rust
     /// use yahtzee::player::Player;
     /// use yahtzee::score::Score;
-    /// 
+    ///
     /// let mut player = Player::new("test".to_owned());
     /// player.dice = [6;5];
     /// if let Some(first_yahtzee) = Score::find_yahtzee(&player) {
@@ -59,12 +59,12 @@ impl Score {
     }
 
     /// Find an upper score for a die value
-    /// 
+    ///
     /// # Example
     /// ```rust
     /// use yahtzee::player::Player;
     /// use yahtzee::score::Score;
-    /// 
+    ///
     /// let mut player = Player::new("test".to_owned());
     /// player.dice = [1,1,2,2,2];
     /// if let Some(aces) = Score::find_upper_score(&player, 1) {
@@ -95,12 +95,12 @@ impl Score {
     }
 
     /// Find a large straight from dice
-    /// 
+    ///
     /// # Example
     /// ```rust
     /// use yahtzee::player::Player;
     /// use yahtzee::score::Score;
-    /// 
+    ///
     /// let mut player = Player::new("test".to_owned());
     /// player.dice = [1,2,3,4,5];
     /// if let Some(large_straight) = Score::find_large_straight(&player) {
@@ -125,12 +125,12 @@ impl Score {
     }
 
     /// Find a small straight from dice
-    /// 
+    ///
     /// # Example
     /// ```rust
     /// use yahtzee::player::Player;
     /// use yahtzee::score::Score;
-    /// 
+    ///
     /// let mut player = Player::new("test".to_owned());
     /// player.dice = [3,2,4,1,6];
     /// if let Some(small_straight) = Score::find_small_straight(&player) {

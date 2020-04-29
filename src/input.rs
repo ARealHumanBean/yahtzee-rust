@@ -1,5 +1,6 @@
 use std::{io, str};
 
+/// read value from and parse into type of passed in argument T
 pub fn read_value<T: str::FromStr>() -> Result<T, T::Err> {
     let mut input = String::new();
 

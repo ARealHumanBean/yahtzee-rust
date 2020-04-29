@@ -70,13 +70,11 @@ fn main() {
             let score_index: usize = loop {
                 println!("Select a possible score");
                 match read_value() {
-                    Ok(score_index) => {
-                        if score_index > possible_scores.len() || score_index < 1 {
-                            println!("your selected score is not in the list");
-                        } else {
-                            break score_index;
-                        }
+                    Ok(score_index) if score_index > possible_scores.len() => {
+                        println!("Your selection is too high")
                     }
+                    Ok(score_index) if score_index < 1 => println!("Your selection is too low"),
+                    Ok(score_index) => break score_index,
                     Err(err) => {
                         println!("{}", err);
                         continue;

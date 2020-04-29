@@ -13,19 +13,19 @@ use std::fmt;
 /// ```
 #[derive(Debug, is_enum_variant, PartialEq, Clone, Copy)]
 pub enum Score {
-    Aces(u8),
-    Twos(u8),
-    Threes(u8),
-    Fours(u8),
-    Fives(u8),
-    Sixes(u8),
-    ThreeOfAKind(u8),
-    FourOfAKind(u8),
-    FullHouse(u8),
-    SmallStraight(u8),
-    LargeStraight(u8),
-    Chance(u8),
-    Yahtzee(u8),
+    Aces(u32),
+    Twos(u32),
+    Threes(u32),
+    Fours(u32),
+    Fives(u32),
+    Sixes(u32),
+    ThreeOfAKind(u32),
+    FourOfAKind(u32),
+    FullHouse(u32),
+    SmallStraight(u32),
+    LargeStraight(u32),
+    Chance(u32),
+    Yahtzee(u32),
 }
 
 impl Score {
@@ -72,7 +72,7 @@ impl Score {
     /// } else {
     ///     assert!(false);
     /// }
-    pub fn find_upper_score(player: &Player, die_face: u8) -> Option<Score> {
+    pub fn find_upper_score(player: &Player, die_face: u32) -> Option<Score> {
         let mut count = 0;
         for die in player.dice.iter() {
             if *die == die_face {

@@ -7,6 +7,10 @@ fn introduction() {
     println!("Hello and welcome to YAHTZEE!!!")
 }
 
+fn end_game() {
+    println!("Thank you for playing yahtzee.")
+}
+
 fn main() {
     introduction();
 
@@ -79,8 +83,11 @@ fn main() {
                     }
                 }
             };
-            player.scores.push(possible_scores[score_index - 1]);
+
+            player.update_score(possible_scores[score_index - 1]);
             break;
         }
     }
+
+    end_game();
 }

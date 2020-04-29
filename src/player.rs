@@ -8,7 +8,7 @@ use std::fmt;
 pub struct Player {
     pub name: String,
     pub score: u32,
-    pub dice: [u8; 5],
+    pub dice: [u32; 5],
     pub scores: Vec<Score>,
 }
 
@@ -47,7 +47,7 @@ impl Player {
         let die_range = Uniform::from(1..7);
 
         for die in self.dice.iter_mut() {
-            *die = die_range.sample(&mut rng) as u8;
+            *die = die_range.sample(&mut rng);
         }
     }
 
@@ -115,6 +115,26 @@ impl Player {
         }
 
         scores
+    }
+
+    /// update the score by summing the scores
+    pub fn update_score(&mut self, score: Score) {
+        self.scores.push(score);
+        self.score = self.score + match score {
+            Score::Aces(score) => score,
+            Score::Twos(score) => score,
+            Score::Threes(score) => score,
+            Score::Fours(score) => score,
+            Score::Fives(score) => score,
+            Score::Sixes(score) => score,
+            Score::ThreeOfAKind(score) => score,
+            Score::FourOfAKind(score) => score,
+            Score::FullHouse(score) => score,
+            Score::SmallStraight(score) => score,
+            Score::LargeStraight(score) => score,
+            Score::Chance(score) => score,
+            Score::Yahtzee(score) => score,
+        } as u32;
     }
 }
 

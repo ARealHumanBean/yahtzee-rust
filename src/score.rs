@@ -46,15 +46,20 @@ impl Score {
     ///     assert!(false);
     /// }
     /// ```
-    pub fn find_yahtzee(player: &Player) -> Option<Score> {
+    pub fn yahtzee(player: &Player) -> Option<Score> {
         for i in 1..player.dice.len() {
             if player.dice[0] != player.dice[i] {
-                return None;
+                return Some(Score::Yahtzee(0));
             }
         }
-        // bonus points for already scoring yahtzee
-        if player.scores.iter().any(|score| score.is_yahtzee()) {
-            return Some(Score::Yahtzee(150));
+        // bonus points for already scoring yahtzee, 
+        // but only if the score was not for 0
+        for player_score in player.scores.iter() {
+            if let Score::Yahtzee(score_value) = player_score {
+                if *score_value != 0 {
+                    return Some(Score::Yahtzee(150));
+                }
+            }
         }
 
         Some(Score::Yahtzee(50))
@@ -79,7 +84,7 @@ impl Score {
     /// } else {
     ///     assert!(false);
     /// }
-    pub fn find_upper_score(player: &Player, die_face: u32) -> Option<Score> {
+    pub fn upper_score(player: &Player, die_face: u32) -> Option<Score> {
         let mut count = 0;
         for die in player.dice.iter() {
             if *die == die_face {
@@ -183,7 +188,7 @@ impl Score {
     /// } else {
     ///     assert!(false);
     /// }
-    pub fn find_large_straight(player: &Player) -> Option<Score> {
+    pub fn large_straight(player: &Player) -> Option<Score> {
         if player.scores.iter().any(|score| score.is_large_straight()) {
             return None;
         }
@@ -192,7 +197,7 @@ impl Score {
         dice.sort();
         for i in 0..dice.len() - 1 {
             if dice[i] + 1 != dice[i + 1] {
-                return None;
+                return Some(Score::LargeStraight(0));
             }
         }
 
@@ -213,7 +218,7 @@ impl Score {
     /// } else {
     ///     assert!(false);
     /// }
-    pub fn find_small_straight(player: &Player) -> Option<Score> {
+    pub fn small_straight(player: &Player) -> Option<Score> {
         if player.scores.iter().any(|score| score.is_small_straight()) {
             return None;
         }
@@ -235,7 +240,7 @@ impl Score {
             }
         }
 
-        None
+        Some(Score::SmallStraight(0))
     }
 
     /// find three of a kind and if found, return Score with dice sum as score value
@@ -271,6 +276,100 @@ impl Score {
             }
         }
         Some(Score::ThreeOfAKind(score))
+    }
+
+    /// find four of a kind and if found, return Score with dice sum as score value
+    ///
+    /// # Example
+    /// ```rust
+    /// use yahtzee::score::Score;
+    /// use yahtzee::player::Player;
+    ///
+    /// let mut player = Player::new("test".to_owned());
+    /// player.dice = [1,1,1,1,6];
+    /// if let Some(score) = Score::four_of_a_kind(&player) {
+    ///     assert_eq!(score, Score::FourOfAKind(10)); // 10 is the total of all die faces
+    /// } else {
+    ///     assert!(false);
+    /// }
+    pub fn four_of_a_kind(player: &Player) -> Option<Score> {
+        if player.scores.iter().any(|score| score.is_four_of_a_kind()) {
+            return None;
+        }
+
+        let mut score = 0;
+        for die_face in 1..=6 {
+            let mut count = 0;
+
+            for die in player.dice.iter() {
+                if *die == die_face {
+                    count = count + 1;
+                }
+                if count >= 4 {
+                    score = player.dice.iter().sum();
+                }
+            }
+        }
+        Some(Score::FourOfAKind(score))
+    }
+
+    /// Check for a full house in player and return score
+    /// 
+    /// # Example
+    /// ```rust
+    /// use yahtzee::score::Score;
+    /// use yahtzee::player::Player;
+    ///
+    /// let mut player = Player::new("test".to_owned());
+    /// player.dice = [1,1,2,2,2];
+    /// if let Some(score) = Score::full_house(&player) {
+    ///     assert_eq!(score, Score::FullHouse(25)); 
+    /// } else {
+    ///     assert!(false);
+    /// }
+    /// ```
+    pub fn full_house(player: &Player) -> Option<Score> {
+        if player.scores.iter().any(|score| score.is_four_of_a_kind()) {
+            return None;
+        }
+
+        let mut three_pair = false;
+        let mut two_pair = false;
+        for die_face in 1..=6 {
+            let mut die_count = 0;
+            for die in player.dice.iter() {
+                if *die == die_face {
+                    die_count = die_count + 1;
+                }
+            }
+
+            // not possible to have a full house when there are more than 3 
+            // of the same die face
+            if die_count > 3 {
+                return Some(Score::FullHouse(0));
+            }
+
+            if !three_pair {
+                three_pair = die_count == 3;
+            }
+
+            if !two_pair {
+                two_pair = die_count == 2;
+            }
+
+            if three_pair && two_pair {
+                return Some(Score::FullHouse(25));
+            }
+        }
+        Some(Score::FullHouse(0))
+    }
+
+    /// Free score which allows the player to score for the sum of the dice
+    pub fn chance(player: &Player) -> Option<Score>{
+        if player.scores.iter().any(|score| score.is_chance()) {
+            return None;
+        }
+        Some(Score::Chance(player.dice.iter().sum()))
     }
 }
 

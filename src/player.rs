@@ -59,7 +59,6 @@ impl Player {
     /// let mut player = Player::new("test".to_owned());
     /// let old_die = player.dice[0];
     /// player.roll_die(0);
-    /// assert_ne!(player.dice[0], old_die);
     /// ```
     pub fn roll_die(&mut self, die: usize) {
         if die > self.dice.len() - 1 {
@@ -98,31 +97,49 @@ impl Player {
     ///         Score::Fours(4),
     ///         Score::Fives(0),
     ///         Score::Sixes(0),
-    ///         Score::SmallStraight(30)]);
+    ///         Score::SmallStraight(30),
+    ///         Score::LargeStraight(0),
+    ///         Score::Yahtzee(0),
+    ///         Score::ThreeOfAKind(0),
+    ///         Score::FourOfAKind(0),
+    ///         Score::FullHouse(0),
+    ///         Score::Chance(player.dice.iter().sum())]);
     /// ```
     pub fn possible_scores(&mut self) -> Vec<Score> {
         let mut scores: Vec<Score> = vec![];
 
         for die_face in 1..=6 {
-            if let Some(upper_score) = Score::find_upper_score(self, die_face) {
+            if let Some(upper_score) = Score::upper_score(self, die_face) {
                 scores.push(upper_score);
             };
         }
 
-        if let Some(small_straight) = Score::find_small_straight(self) {
+        if let Some(small_straight) = Score::small_straight(self) {
             scores.push(small_straight);
         }
 
-        if let Some(large_straight) = Score::find_large_straight(self) {
+        if let Some(large_straight) = Score::large_straight(self) {
             scores.push(large_straight);
         }
 
-        if let Some(yahtzee) = Score::find_yahtzee(self) {
+        if let Some(yahtzee) = Score::yahtzee(self) {
             scores.push(yahtzee);
         }
 
         if let Some(three_of_a_kind) = Score::three_of_a_kind(self) {
             scores.push(three_of_a_kind);
+        }
+
+        if let Some(four_of_a_kind) = Score::four_of_a_kind(self) {
+            scores.push(four_of_a_kind);
+        }
+
+        if let Some(full_house) = Score::full_house(self) {
+            scores.push(full_house);
+        }
+
+        if let Some(chance) = Score::chance(self) {
+            scores.push(chance);
         }
 
         scores

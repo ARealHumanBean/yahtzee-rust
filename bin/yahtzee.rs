@@ -4,7 +4,7 @@ use yahtzee::player::Player;
 const NUM_ROUNDS: u8 = 13;
 
 fn introduction() {
-    println!("Hello and welcome to YAHTZEE!!!")
+    println!("Hello and welcome to YAHTZEE!!!");
 }
 
 fn main() {
@@ -78,5 +78,4 @@ fn main() {
             player.name, player.score
         );
     }
-    
 }

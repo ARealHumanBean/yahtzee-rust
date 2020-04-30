@@ -28,14 +28,10 @@ pub fn get_player_name() -> Option<String> {
     loop {
         println!("What is your name?");
 
-        io::stdin()
-            .read_line(&mut player_name)
-            .expect("Failed to read line");
-
-        if player_name.trim() == "" {
-            return None;
-        } else {
-            return Some(player_name.trim().to_owned());
+        match io::stdin().read_line(&mut player_name) {
+            Ok(_) if player_name.trim() == "" => return None,
+            Ok(_) => return Some(player_name.trim().to_owned()),
+            Err(error) => println!("Error: {}", error),
         }
     }
 }

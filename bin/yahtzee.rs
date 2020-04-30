@@ -12,7 +12,11 @@ fn end_game(player: &mut Player) {
     if let Some(score) = Score::upper_score_bonus(&player) {
         player.update_score(score);
     }
-    println!("Thank you for playing yahtzee.")
+
+    println!(
+        "Thank you for playing yahtzee {}. Your score was: {}",
+        player.name, player.score
+    );
 }
 
 fn main() {

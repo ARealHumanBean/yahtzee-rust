@@ -23,7 +23,7 @@ pub fn read_values<T: str::FromStr>() -> Result<Vec<T>, T::Err> {
 }
 
 /// Gets the players name from standard input
-pub fn get_player_name() -> String {
+pub fn get_player_name() -> Option<String> {
     let mut player_name = String::new();
     loop {
         println!("What is your name?");
@@ -32,6 +32,10 @@ pub fn get_player_name() -> String {
             .read_line(&mut player_name)
             .expect("Failed to read line");
 
-        return player_name.trim().to_owned();
+        if player_name.trim() == "" {
+            return None;
+        } else {
+            return Some(player_name.trim().to_owned());
+        }
     }
 }

@@ -179,6 +179,14 @@ impl Player {
     }
 }
 
+impl Player {
+    pub fn endgame(&mut self) {
+        if let Some(score) = Score::upper_score_bonus(self) {
+            self.update_score(score);
+        }
+    }
+}
+
 impl fmt::Display for Player {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(

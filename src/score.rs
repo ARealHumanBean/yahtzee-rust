@@ -52,7 +52,7 @@ impl Score {
                 return Some(Score::Yahtzee(0));
             }
         }
-        // bonus points for already scoring yahtzee, 
+        // bonus points for already scoring yahtzee,
         // but only if the score was not for 0
         for player_score in player.scores.iter() {
             if let Score::Yahtzee(score_value) = player_score {
@@ -314,7 +314,7 @@ impl Score {
     }
 
     /// Check for a full house in player and return score
-    /// 
+    ///
     /// # Example
     /// ```rust
     /// use yahtzee::score::Score;
@@ -323,7 +323,7 @@ impl Score {
     /// let mut player = Player::new("test".to_owned());
     /// player.dice = [1,1,2,2,2];
     /// if let Some(score) = Score::full_house(&player) {
-    ///     assert_eq!(score, Score::FullHouse(25)); 
+    ///     assert_eq!(score, Score::FullHouse(25));
     /// } else {
     ///     assert!(false);
     /// }
@@ -343,7 +343,7 @@ impl Score {
                 }
             }
 
-            // not possible to have a full house when there are more than 3 
+            // not possible to have a full house when there are more than 3
             // of the same die face
             if die_count > 3 {
                 return Some(Score::FullHouse(0));
@@ -365,7 +365,7 @@ impl Score {
     }
 
     /// Free score which allows the player to score for the sum of the dice
-    pub fn chance(player: &Player) -> Option<Score>{
+    pub fn chance(player: &Player) -> Option<Score> {
         if player.scores.iter().any(|score| score.is_chance()) {
             return None;
         }

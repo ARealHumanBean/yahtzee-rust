@@ -384,20 +384,20 @@ impl fmt::Display for Score {
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Score::Aces(score) => write!(f, "Aces: {}", score),
-            Score::Twos(score) => write!(f, "Twos: {}", score),
-            Score::Threes(score) => write!(f, "Threes: {}", score),
-            Score::Fours(score) => write!(f, "Fours: {}", score),
-            Score::Fives(score) => write!(f, "Fives: {}", score),
-            Score::Sixes(score) => write!(f, "Sixes: {}", score),
-            Score::UpperScoreBonus(score) => write!(f, "Upper Score Bonus! {}", score),
-            Score::ThreeOfAKind(score) => write!(f, "Three of a Kind: {}", score),
-            Score::FourOfAKind(score) => write!(f, "Four of a Kind: {}", score),
-            Score::FullHouse(score) => write!(f, "Full House: {}", score),
-            Score::SmallStraight(score) => write!(f, "Small Straight: {}", score),
-            Score::LargeStraight(score) => write!(f, "Large Straight: {}", score),
-            Score::Chance(score) => write!(f, "Chance: {}", score),
-            Score::Yahtzee(score) => write!(f, "Yahtzee: {}", score),
+            Score::Aces(score) => write!(f, "Aces: {} points", score),
+            Score::Twos(score) => write!(f, "Twos: {} points", score),
+            Score::Threes(score) => write!(f, "Threes: {} points", score),
+            Score::Fours(score) => write!(f, "Fours: {} points", score),
+            Score::Fives(score) => write!(f, "Fives: {} points", score),
+            Score::Sixes(score) => write!(f, "Sixes: {} points", score),
+            Score::UpperScoreBonus(score) => write!(f, "Upper Score Bonus! {} points", score),
+            Score::ThreeOfAKind(score) => write!(f, "Three of a Kind: {} points", score),
+            Score::FourOfAKind(score) => write!(f, "Four of a Kind: {} points", score),
+            Score::FullHouse(score) => write!(f, "Full House: {} points", score),
+            Score::SmallStraight(score) => write!(f, "Small Straight: {} points", score),
+            Score::LargeStraight(score) => write!(f, "Large Straight: {} points", score),
+            Score::Chance(score) => write!(f, "Chance: {} points", score),
+            Score::Yahtzee(score) => write!(f, "Yahtzee: {} points", score),
         }
     }
 }

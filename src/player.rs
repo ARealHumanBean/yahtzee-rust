@@ -1,4 +1,3 @@
-use crate::input::*;
 use crate::score::Score;
 use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
@@ -31,7 +30,7 @@ impl Player {
     /// let old_die = player.dice[0];
     /// player.roll_die(0);
     /// ```
-    pub fn roll_die(&mut self, die: usize) {
+    fn roll_die(&mut self, die: usize) {
         if die > self.dice.len() - 1 {
             println!("out of bounds");
             return;
@@ -42,16 +41,12 @@ impl Player {
     }
 
     /// rerolls dice the user chooses to reroll
-    pub fn reroll(&mut self) {
-        println!("Enter the dice number of each dice you want to reroll seperated by spaces");
-        let rerolls: Vec<u8> = read_values().unwrap();
-
-        for die in rerolls {
+    pub fn reroll(&mut self, dice: Vec<u8>) {
+        for die in dice {
             self.roll_die(die as usize - 1);
         }
     }
 }
-
 
 impl Player {
     /// Constructer for Player Struct

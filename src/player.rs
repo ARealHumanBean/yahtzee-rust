@@ -13,35 +13,6 @@ pub struct Player {
 }
 
 impl Player {
-    /// Constructer for Player Struct
-    ///
-    /// # Example
-    /// ```rust
-    /// use yahtzee::player::Player;
-    ///
-    /// let player = Player::new("test".to_owned());
-    /// assert_eq!(player, Player{name: "test".to_owned(), score: 0, dice: [0; 5], scores: vec![]});
-    /// ```
-    pub fn new(name: String) -> Player {
-        Player {
-            name: name,
-            score: 0,
-            dice: [0; 5],
-            scores: vec![],
-        }
-    }
-
-    /// Randomizes all the dice for a player
-    ///
-    /// # Example
-    /// ```rust
-    /// use yahtzee::player::Player;
-    ///
-    /// let mut player = Player::new("test".to_owned());
-    /// let old_dice = player.dice;
-    /// player.roll_dice();
-    /// assert_ne!(player.dice, old_dice);
-    /// ```
     pub fn roll_dice(&mut self) {
         let mut rng = rand::thread_rng();
         let die_range = Uniform::from(1..7);
@@ -72,14 +43,46 @@ impl Player {
 
     /// rerolls dice the user chooses to reroll
     pub fn reroll(&mut self) {
-        println!("Enter the dice number of each dice you want to reroll seperated by commas(,)");
+        println!("Enter the dice number of each dice you want to reroll seperated by spaces");
         let rerolls: Vec<u8> = read_values().unwrap();
 
         for die in rerolls {
             self.roll_die(die as usize - 1);
         }
     }
+}
 
+
+impl Player {
+    /// Constructer for Player Struct
+    ///
+    /// # Example
+    /// ```rust
+    /// use yahtzee::player::Player;
+    ///
+    /// let player = Player::new("test".to_owned());
+    /// assert_eq!(player, Player{name: "test".to_owned(), score: 0, dice: [0; 5], scores: vec![]});
+    /// ```
+    pub fn new(name: String) -> Player {
+        Player {
+            name: name,
+            score: 0,
+            dice: [0; 5],
+            scores: vec![],
+        }
+    }
+
+    /// Randomizes all the dice for a player
+    ///
+    /// # Example
+    /// ```rust
+    /// use yahtzee::player::Player;
+    ///
+    /// let mut player = Player::new("test".to_owned());
+    /// let old_dice = player.dice;
+    /// player.roll_dice();
+    /// assert_ne!(player.dice, old_dice);
+    /// ```
     /// returns the possible scores from the dice passed
     ///
     /// # Example

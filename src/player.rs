@@ -21,7 +21,7 @@ impl Player {
         }
     }
 
-    /// randomizes a single die for a player
+    /// randomizes a single die for a player between 1 and 6 inclusive
     ///
     /// ```rust
     /// use yahtzee::player::Player;
@@ -37,7 +37,7 @@ impl Player {
         }
 
         let mut rng = rand::thread_rng();
-        self.dice[die] = rng.gen_range(0, 6);
+        self.dice[die] = rng.gen_range(1, 7);
     }
 
     /// rerolls dice the user chooses to reroll
